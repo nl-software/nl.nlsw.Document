@@ -1,4 +1,11 @@
-﻿@{
+﻿<#
+.SYNOPSIS
+ The nl.nlsw.Document module provides PowerShell document processing support.
+ 
+.NOTES
+ @date 2019-01-15
+#>
+@{
 	GUID = "4f293aa5-d703-4ec6-bae7-16730a415dae"
 	Author = "Ernst van der Pols"
 	CompanyName = "NewLife Software"
@@ -8,9 +15,10 @@
 	PowerShellVersion="5.0"
 	DotNetFrameworkVersion="4.5"
 	CLRVersion="4.0"
-	RootModule="nl.nlsw.Document.ps1"
+	#RootModule=".\nl.nlsw.Document.ps1"
 	Description="A PowerShell utility module for processing documents."
 	NestedModules = @(
+		".\nl.nlsw.Document.ps1",
 		".\nl.nlsw.XmlDocument.ps1",
 		".\nl.nlsw.Process.Utility.ps1"
 	)
