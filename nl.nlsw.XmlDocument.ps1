@@ -1,3 +1,10 @@
+#	__ _ ____ _  _ _    _ ____ ____   ____ ____ ____ ___ _  _ ____ ____ ____
+#	| \| |=== |/\| |___ | |--- |===   ==== [__] |---  |  |/\| |--| |--< |===
+#
+# @file nl.nlsw.XmlDocument.ps1
+# @date 2019-01-30
+#requires -version 3
+
 <#
 .SYNOPSIS
  Create a new XmlDocument for UTF-8 output.
@@ -160,4 +167,4 @@ function New-XmlNamespaceManager {
 }
 
 
-#Export-ModuleMember -Function New-XmlDocument, Add-XmlElement, Add-XmlText, New-XmlNamespaceManager
+Export-ModuleMember -Function *

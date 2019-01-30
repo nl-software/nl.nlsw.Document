@@ -24,7 +24,7 @@
 		".\nl.nlsw.Process.Utility.ps1"
 	)
 	FunctionsToExport=@(
-		"Get-MimeType","Get-ExtensionFromMimeType",
+		"Get-MimeType","Get-ExtensionFromMimeType","New-IncrementalFileName",
 		"New-XmlDocument", "Add-XmlElement", "Add-XmlText", "New-XmlNamespaceManager",
 		"New-TempFolder","Remove-TempFolder","Show-Assembly","Show-Module","Show-Object","Write-Action"
 	)

@@ -1,3 +1,10 @@
+#	__ _ ____ _  _ _    _ ____ ____   ____ ____ ____ ___ _  _ ____ ____ ____
+#	| \| |=== |/\| |___ | |--- |===   ==== [__] |---  |  |/\| |--| |--< |===
+#
+# @file nl.nlsw.Process.Utility.ps1
+# @date 2019-01-30
+#requires -version 5
+
 <#
 .SYNOPSIS
  Create a new folder in the specified base folder.
@@ -59,4 +66,4 @@ function Write-Action {
 	write-host ("{0,16} {1}" -f $action,$object) -foregroundcolor "Yellow"
 }
 
-#Export-ModuleMember -Function *
+Export-ModuleMember -Function *

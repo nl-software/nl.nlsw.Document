@@ -1,3 +1,57 @@
+#	__ _ ____ _  _ _    _ ____ ____   ____ ____ ____ ___ _  _ ____ ____ ____
+#	| \| |=== |/\| |___ | |--- |===   ==== [__] |---  |  |/\| |--| |--< |===
+#
+# @file nl.nlsw.Document.ps1
+# @date 2019-01-30
+#requires -version 5
+
+<#
+.SYNOPSIS
+ Create a new unique output file name from the specified path.
+ 
+.DESCRIPTION
+ The input Path is expanded to an absolute path, the directory (folder) is
+ created if not already exsiting, and the filename is made unique if
+ necessary by appending "(<n>)" to the base filename, where "<n>" is
+ a decimal number.
+ Invalid filename characters in the input are replaced by an underscore '_'.
+
+.PARAM Path
+ The path to make a unique output file name from.
+#>
+function New-IncrementalFileName {
+	[CmdletBinding()]
+	param (
+		[Parameter(Mandatory=$True, ValueFromPipeline = $True, ValueFromPipelinebyPropertyName = $True)]
+		[string]$Path
+	)
+	begin {
+		# convert any (range of) invalid filename characters to '_'
+		$invalidFileCharRegEx = [regex]"[$([string]([System.IO.Path]::GetInvalidPathChars()))\*\?]+"
+	}
+	process {
+		# convert any (range of) invalid filename characters to '_'
+		# and determine absolute path, to avoid difference between Environment.CurrentDirectory i.s.o. $pwd
+		$filepath = [System.IO.Path]::GetFullPath([System.IO.Path]::Combine($(Get-Location),$invalidFileCharRegEx.Replace($Path,"_")))
+		# create folder, if non-existing
+		$filefolder = [System.IO.Path]::GetDirectoryName($filepath)
+		if (!(test-path $filefolder)) {
+			new-item -path $filefolder -itemtype Directory | out-null
+		}
+		# make output file unique with "(n)" extension
+		if (test-path $filepath) {
+			$name = [System.IO.Path]::GetFileNameWithoutExtension($filepath)
+			$ext = [System.IO.Path]::GetExtension($filepath)
+			$i = 0;
+			do {
+				$i++
+				$filepath = [System.IO.Path]::Combine($filefolder,"$name($i)$ext")
+			} while (test-path $filepath)
+		}
+		return $filepath
+	}
+}
+
 <#
 .SYNOPSIS
  Gets the MIME (content or media) type from the Windows Registry for the specified file name.
@@ -48,4 +102,4 @@ function Get-ExtensionFromMimeType {
 	return $null
 }
 
-#Export-ModuleMember -Function *
+Export-ModuleMember -Function *
