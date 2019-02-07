@@ -58,15 +58,21 @@ function New-IncrementalFileName {
 
 .DESCRIPTION
  The file name extension is used to lookup the corresponding MIME-type in the registry.
- By default 'application/octet-stream' is returned, indicating a binary file.
 
 .PARAMETER fileName
  The name of the file to get the MIME type for. It must contain at least an extension.
+
+.PARAMETER defaultMimeType
+ The default MIME type, if no matching value can be found. By default 'application/octet-stream'
+ is returned, indicating a binary file.
 #>
 function Get-MimeType {
-	param ([string] $fileName)
+	param (
+		[string]$fileName,
+		[string]$defaultMimeType = "application/octet-stream"
+	)
 	# lookup media type in registry by file name extension
-	$mimeType = "application/octet-stream";
+	$mimeType = $defaultMimeType;
 	$ext = [System.IO.Path]::GetExtension($fileName).ToLower();
 	[Microsoft.Win32.RegistryKey]$regKey = [Microsoft.Win32.Registry]::ClassesRoot.OpenSubKey($ext);
 	if ($regKey -and $regKey.GetValue("Content Type")) {
