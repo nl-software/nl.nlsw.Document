@@ -2,7 +2,7 @@
 #	| \| |=== |/\| |___ | |--- |===   ==== [__] |---  |  |/\| |--| |--< |===
 #
 # @file nl.nlsw.XmlDocument.ps1
-# @date 2019-01-30
+# @date 2019-03-18
 #requires -version 3
 
 <#
@@ -28,6 +28,45 @@ function New-XmlDocument {
 		return $doc
 	}
 }
+
+<#
+.SYNOPSIS
+ Create a new XmlDocument for UTF-8 output with HTML content.
+  
+.DESCRIPTION
+ Creates a new System.Xml.XmlDocument, and adds the XML-declaration 
+ specifying UTF-8 encoding.
+ In addition the html document node and head and body child elements
+ are added. The title element is set in the header.
+ 
+.PARAMETER Title
+ The title of the document
+
+.NOTES
+ @date 2019-03-18
+ @author Ernst van der Pols
+ @language PowerShell 3
+#>
+function New-HtmlDocument {
+	[CmdletBinding()]
+	[OutputType([System.Xml.XmlDocument])]	# only for documentation
+	param(
+		[string]$Title
+	)
+	process {
+		$doc = New-Object System.Xml.XmlDocument
+		$doc.appendChild($doc.CreateXmlDeclaration("1.0", "UTF-8", $null)) | out-null
+		$html = $doc.appendChild($doc.CreateElement("","html", "http://www.w3.org/1999/xhtml"))
+		$head = $html.appendChild($doc.CreateElement("","head", "http://www.w3.org/1999/xhtml"))
+		if ($Title) {
+			$title = $head.appendChild($doc.CreateElement("","title", "http://www.w3.org/1999/xhtml"))
+			$title.InnerText = $Title
+		}		
+		$body = $html.appendChild($doc.CreateElement("","body", "http://www.w3.org/1999/xhtml"))
+		return $doc
+	}
+}
+
 <#
 .SYNOPSIS
  Add a new XmlElement to a specified parent node, optionally with the specified attributes.
@@ -54,7 +93,7 @@ function New-XmlDocument {
 .EXAMPLE
  Add a new html:img to a html:p, with html as default namespace. Use an ordered hashtable to control the
  order of the attributes in the output.
-	$img = New-XmlElement $p "" "img" "http://www.w3.org/1999/xhtml" ([ordered]@{
+	$img = Add-XmlElement $p "" "img" "http://www.w3.org/1999/xhtml" ([ordered]@{
 		"src"="images/example.jpg";
 		"alt"="An example"
 	})
@@ -87,6 +126,7 @@ function Add-XmlElement {
 		return $child
 	}
 }
+
 <#
 .SYNOPSIS
  Add an XmlText node to the specified parent node.
@@ -125,6 +165,44 @@ function Add-XmlText {
 
 <#
 .SYNOPSIS
+ Get the body element of the specified html document.
+
+.PARAM document
+ The html document.
+#>
+function Get-HtmlBody {
+	[CmdletBinding()]
+	[OutputType([System.Xml.XmlElement])]	# only for documentation
+	param (
+		[Parameter(Mandatory=$true, ValueFromPipeline=$true)]
+		[System.Xml.XmlDocument]$document
+	)
+	process {
+		return $document.DocumentElement.GetElementsByTagName("body")[0]
+	}
+}
+
+<#
+.SYNOPSIS
+ Get the head element of the specified html document.
+
+.PARAM document
+ The html document.
+#>
+function Get-HtmlHead {
+	[CmdletBinding()]
+	[OutputType([System.Xml.XmlElement])]	# only for documentation
+	param (
+		[Parameter(Mandatory=$true, ValueFromPipeline=$true)]
+		[System.Xml.XmlDocument]$document
+	)
+	process {
+		return $document.DocumentElement.GetElementsByTagName("head")[0]
+	}
+}
+
+<#
+.SYNOPSIS
  Create a new XmlNamespaceManager for the XmlDocument, and register the specified namespaces.
  
 .DESCRIPTION
@@ -149,7 +227,7 @@ function New-XmlNamespaceManager {
 	[CmdletBinding()]
 	[OutputType([System.Xml.XmlNamespaceManager])]	# only for documentation
 	param (
-		[Parameter(Mandatory=$True)]
+		[Parameter(Mandatory=$true, ValueFromPipeline=$true)]
 		[System.Xml.XmlDocument]$xmldoc,
 
 		[Parameter(Mandatory=$false)]
