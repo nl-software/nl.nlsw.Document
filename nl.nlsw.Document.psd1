@@ -26,7 +26,7 @@
 	FunctionsToExport=@(
 		"Get-MimeType","Get-ExtensionFromMimeType","New-IncrementalFileName",
 		"New-XmlDocument", "Add-XmlElement", "Add-XmlText", "New-XmlNamespaceManager",
-		"New-HtmlDocument","Get-HtmlBody","Get-HtmlHead",
+		"Add-HtmlElement","New-HtmlDocument","Get-HtmlBody","Get-HtmlHead",
 		"New-TempFolder","Remove-TempFolder","Show-Assembly","Show-Module","Show-Object","Write-Action"
 	)
 }

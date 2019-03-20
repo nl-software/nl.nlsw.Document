@@ -2,7 +2,7 @@
 #	| \| |=== |/\| |___ | |--- |===   ==== [__] |---  |  |/\| |--| |--< |===
 #
 # @file nl.nlsw.Document.ps1
-# @date 2019-01-30
+# @date 2019-03-19
 #requires -version 5
 
 <#
@@ -16,13 +16,13 @@
  a decimal number.
  Invalid filename characters in the input are replaced by an underscore '_'.
 
-.PARAM Path
+.PARAMETER Path
  The path to make a unique output file name from.
 #>
 function New-IncrementalFileName {
 	[CmdletBinding()]
 	param (
-		[Parameter(Mandatory=$True, ValueFromPipeline = $True, ValueFromPipelinebyPropertyName = $True)]
+		[Parameter(Mandatory=$true, ValueFromPipeline = $true, ValueFromPipelinebyPropertyName = $true)]
 		[string]$Path
 	)
 	begin {
@@ -80,6 +80,7 @@ function Get-MimeType {
 	}
 	return $mimeType;
 }
+
 <#
 .SYNOPSIS
  Get a file name extension for the specified MIME (content or media) type.
@@ -87,12 +88,11 @@ function Get-MimeType {
 .DESCRIPTION
  The MIME type is 'decoded' to create a file extension from.
  
+ @note This function only works for specific use-cases!
+ @todo Expand the usability, e.g. a reverse lookup in the registry
+
 .PARAMETER mimeType
  The MIME type to get a file name extension for.
-
-.NOTE
- The cmdlet only works for specific use-cases!
- @todo Expand the usability, e.g. a reverse lookup in the registry
 #>
 function Get-ExtensionFromMimeType {
 	param ([string] $mimeType)
