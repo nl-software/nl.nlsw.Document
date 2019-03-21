@@ -271,12 +271,15 @@ function Add-XmlElement {
 	Add-XmlElement $p "Text to append" | out-null
 #>
 function Add-XmlText {
-	[CmdletBinding()]
+	[CmdletBinding(DefaultParameterSetName="Pipe")]
 	[OutputType([System.Xml.XmlText])]	# only for documentation
 	param (
-		[Parameter(Mandatory=$True)]
+		[Parameter(Mandatory=$true, ValueFromPipeline=$true, ParameterSetName="Pipe")]
+		[Parameter(Mandatory=$true, Position=0, ParameterSetName="Pos")]
 		[System.Xml.XmlNode]$parent,
-		[Parameter(Mandatory=$True)]
+
+		[Parameter(Mandatory=$true, Position=0, ParameterSetName="Pipe")]
+		[Parameter(Mandatory=$true, Position=1, ParameterSetName="Pos")]
 		[AllowEmptyString()]
 		[string]$text
 	)
