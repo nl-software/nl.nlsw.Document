@@ -37,6 +37,7 @@ class XmlDoc {
 		"html" = "http://www.w3.org/1999/xhtml";
 		"dc" = "http://purl.org/dc/elements/1.1/";
 		"odc" = "urn:oasis:names:tc:opendocument:xmlns:container";
+		"xcard" = "urn:ietf:params:xml:ns:vcard-4.0";
 	};
 
 	# static constructor
