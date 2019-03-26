@@ -31,13 +31,14 @@ class XmlDoc {
 	static [string] $nsDublinCore = "http://purl.org/dc/elements/1.1/";
 	static [string] $nsHtml = "http://www.w3.org/1999/xhtml";
 	static [string] $nsOpenDocumentContainer = "urn:oasis:names:tc:opendocument:xmlns:container";
+	static [string] $nsvCard40 = "urn:ietf:params:xml:ns:vcard-4.0";
 	
 	# namespace prefixes with the corresponding namespace URI
 	static [hashtable] $namespaces = @{
-		"html" = "http://www.w3.org/1999/xhtml";
-		"dc" = "http://purl.org/dc/elements/1.1/";
-		"odc" = "urn:oasis:names:tc:opendocument:xmlns:container";
-		"xcard" = "urn:ietf:params:xml:ns:vcard-4.0";
+		"html" = [XmlDoc]::nsHtml;
+		"dc" = [XmlDoc]::nsDublinCore;
+		"odc" = [XmlDoc]::nsOpenDocumentContainer;
+		"xcard" = [XmlDoc]::nsvCard40;
 	};
 
 	# static constructor
@@ -331,6 +332,20 @@ function Get-HtmlHead {
 
 <#
 .SYNOPSIS
+ Get a hashtable with a list of well-known XML namespaces and prefixes.
+#>
+function Get-XmlNamespaces {
+	[CmdletBinding()]
+	[OutputType([System.Collections.Hashtable])]	# only for documentation
+	param (
+	)
+	process {
+		return [XmlDoc]::namespaces;
+	}
+}
+
+<#
+.SYNOPSIS
  Create a new XmlNamespaceManager for the XmlDocument, and register the specified namespaces.
  
 .DESCRIPTION
@@ -344,7 +359,7 @@ function Get-HtmlHead {
  The XmlDocument to associate the namespacemanager with.
  
 .PARAMETER namespaces
- The namespaces to add the the manager.
+ The namespaces to add to the manager.
  
 .EXAMPLE
 	$sourcensm = New-XmlNamespaceManager $source @{
