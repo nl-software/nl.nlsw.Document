@@ -7,6 +7,35 @@
 
 <#
 .SYNOPSIS
+ The nl.nlsw.Document module supports PowerShell processing of documents.
+ 
+.DESCRIPTION
+
+.LINK
+ New-XmlDocument
+ 
+.NOTES
+ @date 2019-03-18
+ @author Ernst van der Pols
+ @language PowerShell 5
+#>
+function Get-HelpOnModuleDocument {
+	# since PowerShell does not support get-help on a module,
+	# we provide an function that carries the help (and runs it)
+	get-help Get-HelpOnModuleDocument
+}
+
+# compile the C# types to a library in the TEMP folder
+Add-Type -Path "$PSScriptRoot\nl.nlsw.Identifiers.cs", `
+	"$PSScriptRoot\nl.nlsw.Items.cs" `
+	-ReferencedAssemblies "System.Xml.dll" `
+	-OutputAssembly "$env:TEMP\nl.nlsw.Document.dll" -OutputType Library
+# import the library
+Add-Type -Path "$env:TEMP\nl.nlsw.Document.dll"
+
+
+<#
+.SYNOPSIS
  Create a new unique output file name from the specified path.
  
 .DESCRIPTION

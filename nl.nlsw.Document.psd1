@@ -20,13 +20,23 @@
 	Description="A PowerShell utility module for processing documents."
 	NestedModules = @(
 		".\nl.nlsw.Document.ps1",
-		".\nl.nlsw.XmlDocument.ps1",
-		".\nl.nlsw.Process.Utility.ps1"
+		".\nl.nlsw.Document.Test.ps1",
+		".\nl.nlsw.Process.Utility.ps1",
+		".\nl.nlsw.XmlDocument.ps1"
+	)
+	FileList=@(
+		".\nl.nlsw.Identifiers.cs",
+		".\nl.nlsw.Items.cs",
+		".\nl.nlsw.Document.ps1",
+		".\nl.nlsw.Document.Test.ps1",
+		".\nl.nlsw.Process.Utility.ps1",
+		".\nl.nlsw.XmlDocument.ps1"
 	)
 	FunctionsToExport=@(
 		"Get-MimeType","Get-ExtensionFromMimeType","New-IncrementalFileName",
 		"New-XmlDocument", "Add-XmlElement", "Add-XmlText", "New-XmlNamespaceManager",
 		"Add-HtmlElement","New-HtmlDocument","Get-HtmlBody","Get-HtmlHead","Get-XmlNamespaces",
-		"New-TempFolder","Remove-TempFolder","Show-Assembly","Show-Module","Show-Object","Write-Action"
+		"New-TempFolder","Remove-TempFolder","Show-Assembly","Show-Module","Show-Object","Write-Action",
+		"Test-ModuleDocument"
 	)
 }
