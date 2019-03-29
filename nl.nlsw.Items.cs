@@ -17,7 +17,7 @@ using System.Xml;
 /// Base classes for collections of items with attributes properties.
 ///
 /// @author Ernst van der Pols
-/// @date 2019-03-28
+/// @date 2019-03-29
 /// @requires .NET Framework 4.5
 ///
 namespace nl.nlsw.Items {
@@ -926,15 +926,17 @@ namespace nl.nlsw.Items {
 		}
 
 		/// Object.ToString()
+		/// To be used for general display of the property
 		/// By default, return Value.ToString()
 		public override string ToString() {
 			return Value == null ? null : Value.ToString();
 		}
 		
 		/// IFormattable.ToString()
-		/// By default, returns ToString()
+		/// To be used for (formatted) output of the property value.
+		/// By default, returns Value.ToString()
 		public virtual string ToString(string format, IFormatProvider formatProvider) {
-			return ToString();
+			return Value == null ? null : Value.ToString();
 		}
 	}
 	
