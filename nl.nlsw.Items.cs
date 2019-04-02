@@ -17,7 +17,7 @@ using System.Xml;
 /// Base classes for collections of items with attributes properties.
 ///
 /// @author Ernst van der Pols
-/// @date 2019-03-29
+/// @date 2019-04-02
 /// @requires .NET Framework 4.5
 ///
 namespace nl.nlsw.Items {
@@ -471,10 +471,6 @@ namespace nl.nlsw.Items {
 		/// Get the names of the compound fields (if any)
 		public virtual string[] FieldNames { get; set; }
 
-		/// Get the microformat names of the compound fields (if any)
-		/// @deprecated move to hCard
-		public virtual string[] MicroformatFieldNames { get; set; }
-
 		/// Get the number of values (first order)
 		public int ValueCount {
 			get {
@@ -537,15 +533,6 @@ namespace nl.nlsw.Items {
 			
 		}
 
-		/// Get the microformat name of the compound field at the specified index.
-		public string GetMicroformatFieldName(int index) {
-			if (MicroformatFieldNames == null) {
-				throw new Exception("MicroformatFieldNames not initialized");
-			}
-			return MicroformatFieldNames[(index < MicroformatFieldNames.Length ? index : MicroformatFieldNames.Length - 1)];
-			
-		}
-
 		/// Get the value, optionally at the specified indices.
 		public object GetValue(int? index = null, int? subIndex = null) {
 			object value = base.Value;
@@ -569,6 +556,30 @@ namespace nl.nlsw.Items {
 				return value;
 			}
 			return null;
+		}
+		
+		/// Get the values as string, optionally at the specified field index.
+		public string[] GetValuesAsString(int? index = null) {
+			object value = base.Value;
+			if ((index != null) && (value is CompoundValue)) {
+				// get the string values of the specified field
+				value = ((CompoundValue)value).GetValue((int)index);
+			}
+			string[] result = null;
+			if (value is CompoundValue) {
+				CompoundValue cv = (CompoundValue)value;
+				result = new string[cv.Count];
+				for (int i = 0; i < cv.Count; i++) {
+					if (cv[i] != null) {
+						result[i] = cv[i].ToString();
+					}
+				}
+			}
+			else if (value != null) {
+				result = new string[1];
+				result[0] = value.ToString();
+			}
+			return result;
 		}
 		
 		/// Set the value, optionally at the specified indices.
@@ -606,6 +617,37 @@ namespace nl.nlsw.Items {
 				cv.SetValue(index,scv);
 			}
 			scv.SetValue(subIndex, value);
+		}
+
+		/// Set the values, optionally at the specified index.
+		/// @note other values (at the index) are removed
+		public void SetValuesAsString(string[] values, int? index = null) {
+			if (values == null) {
+				throw new ArgumentNullException("values");
+			}
+			CompoundValue cv = base.Value as CompoundValue;
+			if (cv == null) {
+				// we need a CompoundValue, so create one to hold the values
+				cv = new CompoundValue();
+				base.Value = cv;
+			}
+			if (index == null) {
+				// replace existing fields with the values
+				cv.Clear();
+				cv.AddRange(values);
+			}
+			else {
+				// replace values of field 'index'
+				// check if we have a CompoundValue to hold the value
+				CompoundValue scv =  cv.GetValue((int)index) as CompoundValue;
+				if (scv == null) {
+					scv = new CompoundValue(cv);
+					cv.SetValue((int)index,scv);
+				}
+				// replace existing subfields with the values
+				scv.Clear();
+				scv.AddRange(values);
+			}
 		}
 	}
 
@@ -866,7 +908,12 @@ namespace nl.nlsw.Items {
 			get { return _Value; } 
 			set { _Value = value; }
 		}
-		
+
+		/// The type of the value
+		public virtual string ValueType {
+			get { return "text"; }
+		}
+
 		public bool HasAttributes {
 			get { return (_attrs != null) && (_attrs.Count > 0); }
 		}
