@@ -2,36 +2,9 @@
 #	| \| |=== |/\| |___ | |--- |===   ==== [__] |---  |  |/\| |--| |--< |===
 #
 # @file nl.nlsw.Process.Utility.ps1
-# @date 2019-01-30
+# @date 2019-05-19
 #requires -version 5
 
-<#
-.SYNOPSIS
- Create a new folder in the specified base folder.
-
-.DESCRIPTION
- The new folder has a GUID as name.
-#>
-function New-TempFolder {
-	param ([string] $base)
-	$Guid = [System.Guid]::NewGuid().ToString()
-	$TempFolder = $(Join-Path $base $Guid)
-	return New-Item -Type Directory -Path $TempFolder
-}
-<#
-.SYNOPSIS
- Remove the specified folder.
-
-.DESCRIPTION
- The folder was created with New-TempFolder.
-#>
-function Remove-TempFolder {
-	param ([string] $folder)
-	Push-Location $folder
-	Remove-Item '*.*' -Recurse -Force 
-	Pop-Location
-	Remove-Item $folder
-}
 <#
 .SYNOPSIS
  Shows the .NET assemblies that have been loaded into PowerShell.

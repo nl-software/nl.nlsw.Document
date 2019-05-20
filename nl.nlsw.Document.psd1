@@ -21,22 +21,25 @@
 	NestedModules = @(
 		".\nl.nlsw.Document.ps1",
 		".\nl.nlsw.Document.Test.ps1",
+		".\nl.nlsw.FileSystem.ps1",
 		".\nl.nlsw.Process.Utility.ps1",
 		".\nl.nlsw.XmlDocument.ps1"
 	)
 	FileList=@(
-		".\nl.nlsw.Identifiers.cs",
-		".\nl.nlsw.Items.cs",
 		".\nl.nlsw.Document.ps1",
 		".\nl.nlsw.Document.Test.ps1",
+		".\nl.nlsw.FileSystem.ps1",
+		".\nl.nlsw.Identifiers.cs",
+		".\nl.nlsw.Items.cs",
 		".\nl.nlsw.Process.Utility.ps1",
 		".\nl.nlsw.XmlDocument.ps1"
 	)
 	FunctionsToExport=@(
-		"Get-MimeType","Get-ExtensionFromMimeType","New-IncrementalFileName",
+		"Get-MimeType","Get-ExtensionFromMimeType",
 		"New-XmlDocument", "Add-XmlElement", "Add-XmlText", "New-XmlNamespaceManager",
 		"Add-HtmlElement","New-HtmlDocument","Get-HtmlBody","Get-HtmlHead","Get-XmlNamespaces",
-		"New-TempFolder","Remove-TempFolder","Show-Assembly","Show-Module","Show-Object","Write-Action",
+		"New-IncrementalFileName","New-TempFolder","Remove-TempFolder","Remove-ItemToRecycleBin",
+		"Show-Assembly","Show-Module","Show-Object","Write-Action",
 		"Test-ModuleDocument"
 	)
 }
