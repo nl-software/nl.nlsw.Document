@@ -19,6 +19,7 @@
 	#RootModule=".\nl.nlsw.Document.ps1"
 	Description="A PowerShell utility module for processing documents."
 	NestedModules = @(
+		".\nl.nlsw.Collections.ps1",
 		".\nl.nlsw.Document.ps1",
 		".\nl.nlsw.Document.Test.ps1",
 		".\nl.nlsw.FileSystem.ps1",
@@ -26,6 +27,7 @@
 		".\nl.nlsw.XmlDocument.ps1"
 	)
 	FileList=@(
+		".\nl.nlsw.Collections.ps1",
 		".\nl.nlsw.Document.ps1",
 		".\nl.nlsw.Document.Test.ps1",
 		".\nl.nlsw.FileSystem.ps1",
@@ -35,6 +37,7 @@
 		".\nl.nlsw.XmlDocument.ps1"
 	)
 	FunctionsToExport=@(
+		"ConvertFrom-HashtableArray",
 		"Get-MimeType","Get-ExtensionFromMimeType",
 		"New-XmlDocument", "Add-XmlElement", "Add-XmlText", "New-XmlNamespaceManager",
 		"Add-HtmlElement","New-HtmlDocument","Get-HtmlBody","Get-HtmlHead","Get-XmlNamespaces",
