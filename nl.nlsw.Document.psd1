@@ -12,7 +12,7 @@
 	CompanyName = "NewLife Software"
 	Copyright = "(c) Ernst van der Pols. All rights reserved."
 	HelpInfoUri="http://www.nlsw.nl/?item=software"
-	ModuleVersion = "1.0.0.0"
+	ModuleVersion = "1.0.0.1"
 	PowerShellVersion="5.1"
 	DotNetFrameworkVersion="4.5"
 	CLRVersion="4.0"
@@ -22,14 +22,17 @@
 		".\nl.nlsw.Collections.ps1",
 		".\nl.nlsw.Document.ps1",
 		".\nl.nlsw.Document.Test.ps1",
+		".\nl.nlsw.EPUB.ps1",
 		".\nl.nlsw.FileSystem.ps1",
 		".\nl.nlsw.Process.Utility.ps1",
 		".\nl.nlsw.XmlDocument.ps1"
 	)
 	FileList=@(
 		".\nl.nlsw.Collections.ps1",
+		".\nl.nlsw.Document.cs",
 		".\nl.nlsw.Document.ps1",
 		".\nl.nlsw.Document.Test.ps1",
+		".\nl.nlsw.EPUB.ps1",
 		".\nl.nlsw.FileSystem.ps1",
 		".\nl.nlsw.Identifiers.cs",
 		".\nl.nlsw.Items.cs",
@@ -39,10 +42,12 @@
 	FunctionsToExport=@(
 		"ConvertFrom-HashtableArray",
 		"Get-MimeType","Get-ExtensionFromMimeType",
-		"New-XmlDocument", "Add-XmlElement", "Add-XmlText", "New-XmlNamespaceManager",
+		"New-XmlDocument", "Add-XmlElement", "Add-XmlProcessingInstruction", "Add-XmlText",
+		"New-XmlNamespaceManager",
 		"Add-HtmlElement","New-HtmlDocument","Get-HtmlBody","Get-HtmlHead","Get-XmlNamespaces",
 		"New-IncrementalFileName","New-TempFolder","Remove-TempFolder","Remove-ItemToRecycleBin",
 		"Show-Assembly","Show-Module","Show-Object","Write-Action",
+		"ConvertTo-EPUB",
 		"Test-ModuleDocument"
 	)
 }

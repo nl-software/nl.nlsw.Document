@@ -2,7 +2,6 @@
 #	| \| |=== |/\| |___ | |--- |===   ==== [__] |---  |  |/\| |--| |--< |===
 #
 # @file nl.nlsw.Document.ps1
-# @date 2019-03-19
 #requires -version 5
 
 <#
@@ -15,7 +14,7 @@
  New-XmlDocument
  
 .NOTES
- @date 2019-03-18
+ @date 2019-10-26
  @author Ernst van der Pols
  @language PowerShell 5
 #>
@@ -25,13 +24,16 @@ function Get-HelpOnModuleDocument {
 	get-help Get-HelpOnModuleDocument
 }
 
-# compile the C# types to a library in the TEMP folder
-Add-Type -Path "$PSScriptRoot\nl.nlsw.Identifiers.cs", `
-	"$PSScriptRoot\nl.nlsw.Items.cs" `
-	-ReferencedAssemblies "System.Xml.dll" `
-	-OutputAssembly "$env:TEMP\nl.nlsw.Document.dll" -OutputType Library
+if (!(test-path "$PSScriptRoot\nl.nlsw.Document.dll")) {
+	# compile the C# types to a DLL library
+	Add-Type -Path "$PSScriptRoot\nl.nlsw.Document.cs",`
+		"$PSScriptRoot\nl.nlsw.Identifiers.cs",`
+		"$PSScriptRoot\nl.nlsw.Items.cs" `
+		-ReferencedAssemblies "System.Xml.dll" `
+		-OutputAssembly "$PSScriptRoot\nl.nlsw.Document.dll" -OutputType Library
+}
 # import the library
-Add-Type -Path "$env:TEMP\nl.nlsw.Document.dll"
+Add-Type -Path "$PSScriptRoot\nl.nlsw.Document.dll"
 
 
 <#

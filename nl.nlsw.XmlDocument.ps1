@@ -2,7 +2,7 @@
 #	| \| |=== |/\| |___ | |--- |===   ==== [__] |---  |  |/\| |--| |--< |===
 #
 # @file nl.nlsw.XmlDocument.ps1
-# @date 2019-03-19
+# @date 2019-10-17
 #requires -version 5
 using namespace System.Xml
 
@@ -32,6 +32,7 @@ class XmlDoc {
 	static [string] $nsHtml = "http://www.w3.org/1999/xhtml";
 	static [string] $nsOpenDocumentContainer = "urn:oasis:names:tc:opendocument:xmlns:container";
 	static [string] $nsvCard40 = "urn:ietf:params:xml:ns:vcard-4.0";
+	static [string] $nsXlink = "http://www.w3.org/1999/xlink";
 	
 	# namespace prefixes with the corresponding namespace URI
 	static [hashtable] $namespaces = @{
@@ -39,6 +40,7 @@ class XmlDoc {
 		"dc" = [XmlDoc]::nsDublinCore;
 		"odc" = [XmlDoc]::nsOpenDocumentContainer;
 		"xcard" = [XmlDoc]::nsvCard40;
+		"xlink" = [XmlDoc]::nsXlink;
 	};
 
 	# static constructor
@@ -174,6 +176,52 @@ function Add-HtmlElement {
 	)
 	process {
 		return $parent | Add-XmlElement "" $localName ([XmlDoc]::nsHtml) $attributes $text
+	}
+}
+
+<#
+.SYNOPSIS
+ Add a Processing Instruction node to the specified parent node.
+ 
+.DESCRIPTION
+ Creates a new System.Xml.XmlProcessingInstruction with data for the specified target,
+ and appends it to the parent.
+ 
+.PARAMETER parent
+ The parent node.
+ 
+.PARAMETER target
+ The name of the processing instruction.
+ 
+.PARAMETER data
+ The data for the processing instruction.
+
+.INPUTS
+ System.Xml.Xml The parent node
+ 
+.EXAMPLE
+	$document | Add-XmlProcessingInstruction "xml-stylesheet" "href=`"../xsl/to-html.xsl`" type=`"text/xsl`"' | out-null
+#>
+function Add-XmlProcessingInstruction {
+	[CmdletBinding(DefaultParameterSetName="Pipe")]
+	[OutputType([System.Xml.XmlProcessingInstruction])]	# only for documentation
+	param (
+		[Parameter(Mandatory=$true, ValueFromPipeline=$true, ParameterSetName="Pipe")]
+		[Parameter(Mandatory=$true, Position=0, ParameterSetName="Pos")]
+		[System.Xml.XmlNode]$parent,
+
+		[Parameter(Mandatory=$true, Position=0, ParameterSetName="Pipe")]
+		[Parameter(Mandatory=$true, Position=1, ParameterSetName="Pos")]
+		[string]$target,
+
+		[Parameter(Mandatory=$true, Position=1, ParameterSetName="Pipe")]
+		[Parameter(Mandatory=$true, Position=2, ParameterSetName="Pos")]
+		[string]$data
+	)
+	process {
+		$document = if ($parent -is [System.Xml.XmlDocument]) { $parent } else { $parent.OwnerDocument }
+		$child = $parent.AppendChild($document.CreateProcessingInstruction($target,$data))
+		return $child
 	}
 }
 

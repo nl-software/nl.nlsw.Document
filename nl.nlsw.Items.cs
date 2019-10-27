@@ -795,7 +795,7 @@ namespace nl.nlsw.Items {
 			get { return this._ID; } 
 			set {
 				if (Directory != null) {
-					// @todo change ID camparison from string to the ID object itself
+					// @todo change ID comparison from string to the ID object itself
 					Directory.ChangeKey(this, value == null ? null : value.ToString());
 				}
 				this._ID = value;
@@ -1201,7 +1201,7 @@ namespace nl.nlsw.Items {
 		/// @param delimiters the first character in the array must be the escape character; subsequent characters are the ordered delimiters of the nested fields
 		/// @param replacements the additional escape sequences that need to be decoded; the delimiters are replaced automatically; a non-specified escape sequence
 		///			is left as-is.
-		/// @return a System.String or a nl.nlsw.System.Collections.Specialized.CompoundValue
+		/// @return a System.String or a nl.nlsw.Items.CompoundValue
 		/// 
 		public static object DecodeCompoundValue(string data, char[] delimiters, Dictionary<char,string> replacements = null) {
 			int position = (delimiters != null) ? data.IndexOfAny(delimiters) : -1;
