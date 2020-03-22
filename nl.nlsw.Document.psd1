@@ -12,7 +12,7 @@
 	CompanyName = "NewLife Software"
 	Copyright = "(c) Ernst van der Pols. All rights reserved."
 	HelpInfoUri="http://www.nlsw.nl/?item=software"
-	ModuleVersion = "1.0.0.1"
+	ModuleVersion = "1.0.0.2"
 	PowerShellVersion="5.1"
 	DotNetFrameworkVersion="4.5"
 	CLRVersion="4.0"
@@ -24,6 +24,7 @@
 		".\nl.nlsw.Document.Test.ps1",
 		".\nl.nlsw.EPUB.ps1",
 		".\nl.nlsw.FileSystem.ps1",
+		".\nl.nlsw.Items.ps1"
 		".\nl.nlsw.Process.Utility.ps1",
 		".\nl.nlsw.XmlDocument.ps1"
 	)
@@ -36,12 +37,13 @@
 		".\nl.nlsw.FileSystem.ps1",
 		".\nl.nlsw.Identifiers.cs",
 		".\nl.nlsw.Items.cs",
+		".\nl.nlsw.Items.ps1",
 		".\nl.nlsw.Process.Utility.ps1",
 		".\nl.nlsw.XmlDocument.ps1"
 	)
 	FunctionsToExport=@(
 		"ConvertFrom-HashtableArray",
-		"Get-MimeType","Get-ExtensionFromMimeType",
+		"Get-MimeType","Get-ExtensionFromMimeType","Expand-ItemObjectMacros",
 		"New-XmlDocument", "Add-XmlElement", "Add-XmlProcessingInstruction", "Add-XmlText",
 		"New-XmlNamespaceManager",
 		"Add-HtmlElement","New-HtmlDocument","Get-HtmlBody","Get-HtmlHead","Get-XmlNamespaces",
