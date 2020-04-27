@@ -2,7 +2,7 @@
 #	| \| |=== |/\| |___ | |--- |===   ==== [__] |---  |  |/\| |--| |--< |===
 #
 # @file nl.nlsw.FileSystem.ps1
-# @date 2019-05-17
+# @date 2020-04-27
 #requires -version 5
 
 <#
@@ -60,7 +60,7 @@ function New-IncrementalFileName {
  The new folder has a GUID as name.
 #>
 function New-TempFolder {
-	param ([string] $base)
+	param ([string] $base = ".")
 	$Guid = [System.Guid]::NewGuid().ToString()
 	$TempFolder = $(Join-Path $base $Guid)
 	return New-Item -Type Directory -Path $TempFolder
@@ -90,52 +90,54 @@ function Remove-TempFolder {
  recycle bin. This function uses the VisualBasic operations of .NET for the implementation.
 
 .PARAMETER Path
- The path name or the FileSystemInfo object of the item to remove.
+ The path name of the item(s) to remove.
  
-.PARAMETER Confirm
- Shows a confirmation dialog for the user to confirm the operation. If the user
- cancels the operation, an exception is thrown.
+.PARAMETER PassThru
+ Outputs the FileSystemInfo object of the original item if the file system item has been removed
+ to the recycle bin. NOTE that this item is no longer at its original location, so use the object with care.
 
-.PARAMETER WhatIf
- Writes a message to the host indicating the operation that will be performed by this function.
+.INPUTS
+ string
  
+.OUTPUTS
+ System.IO.FileSystemInfo
+
 .LINK
- https://stackoverflow.com/questions/502002/how-do-i-move-a-file-to-the-recycle-bin-using-powershell
+ https://www.powershellgallery.com/packages/Recycle/1.0.2/Content/Recycle.psm1
 
 .NOTES
- There is a Recycle PS module.
+ This code is based on the Recycle PS module of Brian Dukes.
+ This function supports the ShouldProcess feature https://vexx32.github.io/2018/11/22/Implementing-ShouldProcess/
 #>
 function Remove-ItemToRecycleBin {
-	[CmdletBinding()]
+	[CmdletBinding(SupportsShouldProcess=$true, ConfirmImpact='Medium')]
 	param ( 
-		[Parameter(Mandatory=$true, ValueFromPipeline=$true)]
-		[object]$Path,
+        [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true, ValueFromPipelineByPropertyName=$true)]
+		[SupportsWildcards()]
+		[ValidateNotNullOrEmpty()]
+		[string[]]$Path,
 		
-		[switch]$Confirm,
-		[switch]$WhatIf
+		[switch]$PassThru
 	)
-    $item = Get-Item -Path $Path -ErrorAction SilentlyContinue
-    if ($item -eq $null) {
-        Write-Error("'{0}' not found" -f $Path)
-    }
-    else {
-        $fullpath=$item.FullName
-		if ($WhatIf) {
-			write-host "What if: Performing the operation `"Remove-ItemToRecycleBin`" on target `"$fullpath`""
-		}
-		else {
-			Add-Type -AssemblyName Microsoft.VisualBasic
-
-			$uioption = if ($Confirm) { "AllDialogs" } else { "OnlyErrorDialogs" }
-			Write-Verbose ("Moving '{0}' to the Recycle Bin" -f $fullpath)
-			if (Test-Path -Path $fullpath -PathType Container) {
-				[Microsoft.VisualBasic.FileIO.FileSystem]::DeleteDirectory($fullpath,$uioption,'SendToRecycleBin','ThrowException')
-			}
-			else {
-				[Microsoft.VisualBasic.FileIO.FileSystem]::DeleteFile($fullpath,$uioption,'SendToRecycleBin','ThrowException')
+	begin {
+		$shell = new-object -comobject "Shell.Application"
+	}
+	process {
+		if ($PSCmdlet.ShouldProcess($Path)) {
+			$item = Get-Item $Path -ErrorAction "Stop"
+			$fullpath = $item.FullName
+			$directoryPath = Split-Path $item -Parent
+			$shellFolder = $shell.Namespace($directoryPath)
+			$shellItem = $shellFolder.ParseName($item.Name)
+			$shellItem.InvokeVerb("delete")
+			
+			if ($PassThru -and !(Test-Path $fullpath)) {
+				$item
 			}
 		}
-    }
+	}
+	end {
+	}
 }
 
 Export-ModuleMember -Function *
