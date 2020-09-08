@@ -21,7 +21,7 @@ using namespace nl.nlsw.Items
  No output to the host
 
 .NOTES
- @date 2019-03-28
+ @date 2020-09-08
  @author Ernst van der Pols
  @language PowerShell 5
 #>
@@ -91,8 +91,8 @@ function Test-ModuleDocument {
 		# create a new ItemObject
 		$item = $( $suite | test-case "`$item = `$directory.NewItem()" { $directory.NewItem("First Item") } ([nl.nlsw.Items.ItemObject]) -passThru ).output
 		$suite | test-case "`$directory.Count == 1" { $directory.Count } 1
-		$suite | test-case "`$directory[0].ID (index and Item.ID test)" { $directory[0].ID } $item.ID
-		$suite | test-case "`$directory[`$item.ID].ID == `$item.ID (lookup test)" { $directory[$item.ID.ToString()].ID } $item.ID
+		$suite | test-case "`$directory[0].Identifier (index and Item.Identifier test)" { $directory[0].Identifier } $item.Identifier
+		$suite | test-case "`$directory[`$item.Identifier].Identifier == `$item.Identifier (lookup test)" { $directory[$item.Identifier.ToString()].Identifier } $item.Identifier
 		# test nl.nlsw.Items.ItemObject interface
 		$suite | test-case "ItemObject.Directory" { $directory.Equals($item.Directory) } $true
 		$suite | test-case "ItemObject.Name" { $item.Name } "First Item"

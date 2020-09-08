@@ -17,7 +17,7 @@ using System.Xml;
 /// Base classes for collections of items with attributes properties.
 ///
 /// @author Ernst van der Pols
-/// @date 2019-04-02
+/// @date 2020-09-08
 /// @requires .NET Framework 4.5
 ///
 namespace nl.nlsw.Items {
@@ -654,8 +654,8 @@ namespace nl.nlsw.Items {
 	///
 	/// A keyed collection of directory of ItemObjects.
 	///
-	/// The directory has an internal dictionary for a fast lookup of items, based on their ID.
-	/// Since the ID of an ItemObject is mutable, the update of the ItemObject.ID results in an update of the 
+	/// The directory has an internal dictionary for a fast lookup of items, based on their Identifier.
+	/// Since the Identifier of an ItemObject is mutable, the update of the ItemObject.Identifier results in an update of the 
 	/// associated Directory as well; the ItemObject holds a reference to the Dictionary for this.
 	/// An ItemObject can only be in one directory.
 	/// @see https://docs.microsoft.com/en-us/dotnet/api/system.collections.objectmodel.keyedcollection-2?view=netframework-4.5.2
@@ -679,8 +679,8 @@ namespace nl.nlsw.Items {
 		
 		/// Get the key of the ItemObject object.
 		protected override string GetKeyForItem(ItemObject item) {
-			// The ID is the key.
-			return item.ID.ToString();
+			// The Identifier is the key.
+			return item.Identifier.ToString();
 		}
 
 		protected override void InsertItem(int index, ItemObject newItem) {
@@ -729,7 +729,7 @@ namespace nl.nlsw.Items {
 			base.ClearItems();
 		}
 
-		/// To be called from ItemObject.ID.set
+		/// To be called from ItemObject.Identifier.set
 		internal void ChangeKey(ItemObject item, string newKey) {
 			base.ChangeItemKey(item, newKey);
 		}
@@ -753,11 +753,12 @@ namespace nl.nlsw.Items {
 		/// The directory (keyed collection of items) that this ItemObject belongs to.
 		private Directory _Directory = null;
 		/// Unique identifier of the item, e.g. a urn:uuid
-		private nl.nlsw.Identifiers.Uri _ID = null;
+		private nl.nlsw.Identifiers.Uri _Identifier = null;
 		/// Properties of the item
 		private Properties _Properties = null;
 		
 		/// Get a property or the properties by case insensitive name
+		[System.Xml.Serialization.XmlIgnore()]
 		public object this[string name] {
 			get {
 				if (_Properties != null) {
@@ -768,6 +769,7 @@ namespace nl.nlsw.Items {
 		}
 
 		/// The directory that this ItemObject belongs to.
+		[System.Xml.Serialization.XmlIgnore()]
 		public Directory Directory {
 			get { return this._Directory; }
 			internal set { 
@@ -787,30 +789,34 @@ namespace nl.nlsw.Items {
 		/// e-mail address) will fail since UserInfo is not included in the Uri.Equals.
 		/// A UUID is preferred as identifier.
 		///
-		/// The (string value) ID is used as key in the associated Directory.
-		/// If the ID is changed, the Directory is automatically updated.
+		/// The (string value) Identifier is used as key in the associated Directory.
+		/// If the Identifier is changed, the Directory is automatically updated.
 		/// In that case, an ArgumentException is thrown if the new value is null or an existing key.
 		///
-		public nl.nlsw.Identifiers.Uri ID {
-			get { return this._ID; } 
+		[System.Xml.Serialization.XmlIgnore()]
+		public nl.nlsw.Identifiers.Uri Identifier {
+			get { return this._Identifier; } 
 			set {
 				if (Directory != null) {
-					// @todo change ID comparison from string to the ID object itself
+					// @todo change Identifier comparison from string to the Identifier object itself
 					Directory.ChangeKey(this, value == null ? null : value.ToString());
 				}
-				this._ID = value;
+				this._Identifier = value;
 			}
 		}
 
 		/// Get an icon character representing the (type of) ItemObject.
 		/// @note to represent any Unicode char, you need a string in C#,
 		/// 	since a char is only 16-bit
+		[System.Xml.Serialization.XmlIgnore()]
 		public virtual string IconChar {
 			get { return "\u2022"; }	// BULLET
 		}
 
+		[System.Xml.Serialization.XmlIgnore()]
 		public string Name { get; set; }
 		
+		[System.Xml.Serialization.XmlIgnore()]
 		public Properties Properties {
 			get {
 				if (_Properties == null) {
@@ -829,7 +835,7 @@ namespace nl.nlsw.Items {
 				// create a new UUID URI
 				id = nl.nlsw.Identifiers.UrnUri.NewUuidUrnUri();
 			}
-			this.ID = id;
+			this.Identifier = id;
 			this.Name = name;
 		}
 
@@ -850,7 +856,7 @@ namespace nl.nlsw.Items {
 		}
 
 		public override string ToString() {
-			return (string.IsNullOrEmpty(Name) ? (ID == null ? null : ID.ToString()) : Name);
+			return (string.IsNullOrEmpty(Name) ? (Identifier == null ? null : Identifier.ToString()) : Name);
 		}
 	}	
 

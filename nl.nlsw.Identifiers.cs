@@ -742,6 +742,12 @@ namespace nl.nlsw.Identifiers {
 		public static readonly Regex WhiteSpacesRegex = new Regex(@"\s+",
 			RegexOptions.Compiled | RegexOptions.CultureInvariant);
 
+		///
+		/// Default constructor.
+		/// An empty URI is only possible as relative URI.
+		public Uri() : base(null,UriKind.Relative) {
+		}
+
 		public Uri(string uriString) : base(uriString) {
 		}
 
