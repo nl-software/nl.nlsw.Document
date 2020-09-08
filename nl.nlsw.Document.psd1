@@ -52,7 +52,7 @@
 		"New-IncrementalFileName","New-TempFolder","Remove-TempFolder","Remove-ItemToRecycleBin",
 		"Get-OSArchitecture", "Show-Assembly","Show-Module","Show-Object","Write-Action",
 		"ConvertTo-EPUB",
-		"Reed-Feed","Save-FeedAttachments",
+		"Read-Feed","Save-FeedAttachments",
 		"Test-ModuleDocument"
 	)
 }

@@ -2,7 +2,7 @@
 #	| \| |=== |/\| |___ | |--- |===   ==== [__] |---  |  |/\| |--| |--< |===
 #
 # @file nl.nlsw.Feed.ps1
-# @date 2020-05-04
+# @date 2020-09-08
 # @author Ernst van der Pols
 #requires -version 5
 using namespace System.Xml
@@ -27,8 +27,8 @@ using namespace System.Xml
 .LINK
  https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.utility/invoke-webrequest
 #>
-[CmdletBinding()]
 function Read-Feed {
+	[CmdletBinding()]
 	param(
 		[Parameter(Mandatory=$false, Position=0, ValueFromPipeline=$true)]
 		[string]$URI = "https://podcast.npo.nl/feed/bach-van-de-dag.xml"
@@ -73,13 +73,13 @@ function Read-Feed {
  System.Xml.XmlDocument
  
 .OUTPUTS
- System.IO.FilInfo
+ System.IO.FileInfo
 
 .LINK
  https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.utility/invoke-webrequest
 #>
-[CmdletBinding()]
 function Save-FeedAttachments {
+	[CmdletBinding()]
 	param(
 		[Parameter(Mandatory=$false, Position=0, ValueFromPipeline=$true)]
 		[System.Xml.XmlDocument]$InputObject,
