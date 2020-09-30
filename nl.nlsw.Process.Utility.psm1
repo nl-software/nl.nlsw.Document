@@ -1,7 +1,7 @@
 #	__ _ ____ _  _ _    _ ____ ____   ____ ____ ____ ___ _  _ ____ ____ ____
 #	| \| |=== |/\| |___ | |--- |===   ==== [__] |---  |  |/\| |--| |--< |===
 #
-# @file nl.nlsw.Process.Utility.ps1
+# @file nl.nlsw.Process.Utility.psm1
 # @date 2020-06-18
 #requires -version 5
 
@@ -18,7 +18,6 @@
 function Get-OSArchitecture {
 	(gwmi -Query "Select OSArchitecture from Win32_OperatingSystem").OSArchitecture
 }
-
 
 function Show-Assembly {
 	write-host "Loaded .NET assemblies"

@@ -1,7 +1,7 @@
 #	__ _ ____ _  _ _    _ ____ ____   ____ ____ ____ ___ _  _ ____ ____ ____
 #	| \| |=== |/\| |___ | |--- |===   ==== [__] |---  |  |/\| |--| |--< |===
 #
-# @file nl.nlsw.XmlDocument.ps1
+# @file nl.nlsw.XmlDocument.psm1
 # @date 2019-10-17
 #requires -version 5
 using namespace System.Xml

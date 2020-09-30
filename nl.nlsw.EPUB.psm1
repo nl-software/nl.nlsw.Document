@@ -1,8 +1,8 @@
 #	__ _ ____ _  _ _    _ ____ ____   ____ ____ ____ ___ _  _ ____ ____ ____
 #	| \| |=== |/\| |___ | |--- |===   ==== [__] |---  |  |/\| |--| |--< |===
 #
-# @file nl.nlsw.Document.ps1
-# @date 2019-03-19
+# @file nl.nlsw.EPUB.psm1
+# @date 2020-09-30
 #requires -version 5
 
 <#
@@ -205,10 +205,10 @@ function ConvertTo-EPUB {
 			}
 		}
 
-		Write-Verbose -Message "[$($MyInvocation.MyCommand.CommandType): $($MyInvocation.MyCommand.Name)] begin $Action $Path > $Path.$Ext."
+		Write-Verbose "[$($MyInvocation.MyCommand.CommandType): $($MyInvocation.MyCommand.Name)] begin $Action $Path > $Path.$Ext."
 		# count files processed.
 		$FileCount = 0
-	} # Begin block
+	}
 
 	process {
 		$item = Get-Item $inputObject -ErrorAction "Stop"
@@ -486,11 +486,11 @@ function ConvertTo-EPUB {
 		}
 		Write-Action "ready" $outFileName
 		$FileCount++
-	} # End of PROCESS block.
+	}
 
 	end {
 		# If($?){ # only execute if the function was successful.
-		Write-Verbose -Message "[$($MyInvocation.MyCommand.Name)] $FileCount files converted."
-	} # END Block.
+		Write-Verbose "[$($MyInvocation.MyCommand.Name)] $FileCount files converted."
+	}
 }
 Export-ModuleMember -Function *

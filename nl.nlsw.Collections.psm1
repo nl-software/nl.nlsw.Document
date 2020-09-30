@@ -1,7 +1,7 @@
 #	__ _ ____ _  _ _    _ ____ ____   ____ ____ ____ ___ _  _ ____ ____ ____
 #	| \| |=== |/\| |___ | |--- |===   ==== [__] |---  |  |/\| |--| |--< |===
 #
-# @file nl.nlsw.Collections.ps1
+# @file nl.nlsw.Collections.psm1
 # @date 2019-05-21
 #requires -version 2
 

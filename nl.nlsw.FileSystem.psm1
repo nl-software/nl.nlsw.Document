@@ -1,7 +1,7 @@
 #	__ _ ____ _  _ _    _ ____ ____   ____ ____ ____ ___ _  _ ____ ____ ____
 #	| \| |=== |/\| |___ | |--- |===   ==== [__] |---  |  |/\| |--| |--< |===
 #
-# @file nl.nlsw.FileSystem.ps1
+# @file nl.nlsw.FileSystem.psm1
 # @date 2020-04-27
 #requires -version 5
 

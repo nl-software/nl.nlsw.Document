@@ -1,7 +1,7 @@
 #	__ _ ____ _  _ _    _ ____ ____   ____ ____ ____ ___ _  _ ____ ____ ____
 #	| \| |=== |/\| |___ | |--- |===   ==== [__] |---  |  |/\| |--| |--< |===
 #
-# @file nl.nlsw.Feed.ps1
+# @file nl.nlsw.Feed.psm1
 # @date 2020-09-08
 # @author Ernst van der Pols
 #requires -version 5

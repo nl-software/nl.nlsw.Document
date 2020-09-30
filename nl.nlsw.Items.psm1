@@ -1,7 +1,7 @@
 #	__ _ ____ _  _ _    _ ____ ____   ____ ____ ____ ___ _  _ ____ ____ ____
 #	| \| |=== |/\| |___ | |--- |===   ==== [__] |---  |  |/\| |--| |--< |===
 #
-# @file nl.nlsw.Items.ps1
+# @file nl.nlsw.Items.psm1
 # @date 2020-03-20
 #requires -version 5
 
@@ -40,13 +40,13 @@ function Expand-ItemObjectMacros {
 		[nl.nlsw.Items.ItemObject]$item,
 
 		[Parameter(Mandatory=$true, ValueFromPipeline = $true, ValueFromPipelinebyPropertyName = $true)]
-		[string]$text		
+		[string]$text
 	)
 	process {
 		[nl.nlsw.Document.Utility]::PathMacroRegex.Replace($text,{
 			$value = switch ($args[0].groups['key']) {
 			"name"	{ $item.Name; break }
-			"id" 	{ $item.ID; break }
+			"id" 	{ $item.Identifier; break }
 			}
 			if ($value) {
 				"$($args[0].groups['pre'])$($value)$($args[0].groups['post'])"

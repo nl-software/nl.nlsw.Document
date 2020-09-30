@@ -1,29 +1,11 @@
 #	__ _ ____ _  _ _    _ ____ ____   ____ ____ ____ ___ _  _ ____ ____ ____
 #	| \| |=== |/\| |___ | |--- |===   ==== [__] |---  |  |/\| |--| |--< |===
 #
-# @file nl.nlsw.Document.ps1
+# @file nl.nlsw.Document.psm1
 #requires -version 5
 
-<#
-.SYNOPSIS
- The nl.nlsw.Document module supports PowerShell processing of documents.
- 
-.DESCRIPTION
-
-.LINK
- New-XmlDocument
- 
-.NOTES
- @date 2019-10-26
- @author Ernst van der Pols
- @language PowerShell 5
-#>
-function Get-HelpOnModuleDocument {
-	# since PowerShell does not support get-help on a module,
-	# we provide an function that carries the help (and runs it)
-	get-help Get-HelpOnModuleDocument
-}
-
+# Import the nl.nlsw.Document, nl.nlsw.identifiers, and nl.nlsw.Items .NET classes.
+#
 if (!(test-path "$PSScriptRoot\nl.nlsw.Document.dll")) {
 	# compile the C# types to a DLL library
 	Add-Type -Path "$PSScriptRoot\nl.nlsw.Document.cs",`
