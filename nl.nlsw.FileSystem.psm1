@@ -2,7 +2,7 @@
 #	| \| |=== |/\| |___ | |--- |===   ==== [__] |---  |  |/\| |--| |--< |===
 #
 # @file nl.nlsw.FileSystem.psm1
-# @date 2020-04-27
+# @date 2020-10-02
 #requires -version 5
 
 <#
@@ -14,7 +14,9 @@
  created if not already exsiting, and the filename is made unique if
  necessary by appending "(<n>)" to the base filename, where "<n>" is
  a decimal number.
+
  Invalid filename characters in the input are replaced by an underscore '_'.
+ Note that not all 
 
 .PARAMETER Path
  The path to make a unique output file name from.
@@ -27,12 +29,15 @@ function New-IncrementalFileName {
 	)
 	begin {
 		# convert any (range of) invalid filename characters to '_'
-		$invalidFileCharRegEx = [regex]"[$([string]([System.IO.Path]::GetInvalidPathChars()))\*\?]+"
+		$invalidPathCharRegEx = [regex]"[$([string]([System.IO.Path]::GetInvalidPathChars()))\*\?]+"
+		$invalidFileCharRegEx = [regex]"[$([string]([System.IO.Path]::GetInvalidFileNameChars()))\*\?]+"
 	}
 	process {
 		# convert any (range of) invalid filename characters to '_'
+		$leaf = $Path | Split-Path -leaf
+		$parent = $Path | Split-Path -parent
 		# and determine absolute path, to avoid difference between Environment.CurrentDirectory i.s.o. $pwd
-		$filepath = [System.IO.Path]::GetFullPath([System.IO.Path]::Combine($(Get-Location),$invalidFileCharRegEx.Replace($Path,"_")))
+		$filepath = [System.IO.Path]::GetFullPath([System.IO.Path]::Combine($(Get-Location),$invalidPathCharRegEx.Replace($parent,"_"),$invalidFileCharRegEx.Replace($leaf,"_")))
 		# create folder, if non-existing
 		$filefolder = [System.IO.Path]::GetDirectoryName($filepath)
 		if (!(test-path $filefolder)) {

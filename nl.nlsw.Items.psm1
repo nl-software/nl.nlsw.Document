@@ -2,7 +2,7 @@
 #	| \| |=== |/\| |___ | |--- |===   ==== [__] |---  |  |/\| |--| |--< |===
 #
 # @file nl.nlsw.Items.psm1
-# @date 2020-03-20
+# @date 2020-10-02
 #requires -version 5
 
 <#
@@ -22,6 +22,7 @@
  Available macro key values (case insensitive):
  - NAME		replaced by the name of the ItemObject
  - ID		replaced by the identifier of the ItemObject
+ - UUID		replaced by the UUID of the ItemObject
 
 .PARAMETER ItemObject
  The ItemObject to get the properties of.
@@ -47,6 +48,7 @@ function Expand-ItemObjectMacros {
 			$value = switch ($args[0].groups['key']) {
 			"name"	{ $item.Name; break }
 			"id" 	{ $item.Identifier; break }
+			"uuid" 	{ $item.Identifier.UUID; break }
 			}
 			if ($value) {
 				"$($args[0].groups['pre'])$($value)$($args[0].groups['post'])"
