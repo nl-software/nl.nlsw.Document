@@ -2,7 +2,7 @@
 #	| \| |=== |/\| |___ | |--- |===   ==== [__] |---  |  |/\| |--| |--< |===
 #
 # @file nl.nlsw.Items.psm1
-# @date 2020-10-02
+# @date 2020-10-12
 #requires -version 5
 
 <#
@@ -45,11 +45,7 @@ function Expand-ItemObjectMacros {
 	)
 	process {
 		[nl.nlsw.Document.Utility]::PathMacroRegex.Replace($text,{
-			$value = switch ($args[0].groups['key']) {
-			"name"	{ $item.Name; break }
-			"id" 	{ $item.Identifier; break }
-			"uuid" 	{ $item.Identifier.UUID; break }
-			}
+			$value = $item.GetMacroValue($args[0].groups['key']);
 			if ($value) {
 				"$($args[0].groups['pre'])$($value)$($args[0].groups['post'])"
 			}

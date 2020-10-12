@@ -962,8 +962,19 @@ namespace nl.nlsw.Identifiers {
 			return base.GetHashCode();
 		}
 
+		/// Get the universally unique identifier (UUID) as string from the specified URI.
+		/// @param uri the URI to get the UUID of
+		/// @returns null the UUID or null if the uri does not contain a UUID.
+		public static string GetUUIDString(Uri uri) {
+			UrnUri urn = uri as UrnUri;
+			if (urn != null && urn.NID == UuidNamespace) {
+				return urn.NSS;
+			}
+			return null;
+		}
+
 		/// Get the public identifier.
-		/// Returns null if the Identifier is not a public identifier.
+		/// @returns null if the Identifier is not a public identifier.
 		public string PublicIdentifier {
 			get {
 				if (NID == PublicIdNamespace) {
@@ -972,9 +983,9 @@ namespace nl.nlsw.Identifiers {
 				return null;
 			}
 		}
-	
+
 		/// Get the universally unique identifier.
-		/// Returns null if the Identifier is not a UUID.
+		/// @returns null if the Identifier is not a UUID.
 		public Guid? UUID {
 			get {
 				if (NID == UuidNamespace) {

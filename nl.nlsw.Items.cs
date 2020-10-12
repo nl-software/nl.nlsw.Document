@@ -839,6 +839,22 @@ namespace nl.nlsw.Items {
 			this.Name = name;
 		}
 
+		/// Get the replacement value of the specified macro for this object.
+		/// @param macro the macro to get the value of
+		/// @return the macro value, or null if not available
+		public virtual string GetMacroValue(string macro) {
+			if (string.Equals("name",macro,StringComparison.OrdinalIgnoreCase)) {
+				return this.Name;
+			}
+			else if (string.Equals("id",macro,StringComparison.OrdinalIgnoreCase)) {
+				return (this.Identifier == null) ? null : this.Identifier.ToString();
+			}
+			else if (string.Equals("uuid",macro,StringComparison.OrdinalIgnoreCase)) {
+				return nl.nlsw.Identifiers.UrnUri.GetUUIDString(this.Identifier);
+			}
+			return null;
+		}
+
 		/// Get properties by name, and (optionally) attribute name and value.
 		public Properties GetProperties(string name, string attrName = null, string attrValue = null) {
 			if (_Properties != null) {
