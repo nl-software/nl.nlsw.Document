@@ -2,7 +2,7 @@
 #	| \| |=== |/\| |___ | |--- |===   ==== [__] |---  |  |/\| |--| |--< |===
 #
 # @file nl.nlsw.XmlDocument.psm1
-# @date 2019-10-17
+# @date 2021-05-07
 #requires -version 5
 using namespace System.Xml
 
@@ -83,7 +83,7 @@ function New-XmlDocument {
 	param()
 	process {
 		$doc = New-Object System.Xml.XmlDocument
-		$doc.appendChild($doc.CreateXmlDeclaration("1.0", "UTF-8", $null)) | out-null
+		$doc.AppendChild($doc.CreateXmlDeclaration("1.0", "UTF-8", $null)) | out-null
 		return $doc
 	}
 }
