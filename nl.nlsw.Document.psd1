@@ -11,7 +11,7 @@
 	# RootModule = ".\nl.nlsw.Document.psm1"
 
 	# Version number of this module.
-	ModuleVersion = "1.0.1.0"
+	ModuleVersion = "1.0.2.0"
 
 	# Supported PSEditions
 	# CompatiblePSEditions = @()
@@ -87,6 +87,7 @@
 		"Add-HtmlElement","New-HtmlDocument","Get-HtmlBody","Get-HtmlHead","Get-XmlNamespaces",
 		"New-IncrementalFileName","New-TempFolder","Remove-TempFolder","Remove-ItemToRecycleBin",
 		"Get-OSArchitecture", "Show-Assembly","Show-Module","Show-Object","Write-Action",
+		"Export-Ini","Import-Ini",
 		"ConvertTo-EPUB",
 		"Read-Feed","Save-FeedAttachments",
 		"Test-ModuleDocument"

@@ -2,47 +2,46 @@
 #	| \| |=== |/\| |___ | |--- |===   ==== [__] |---  |  |/\| |--| |--< |===
 #
 # @file nl.nlsw.Ini.psm1
-# @date 2020-09-30
-#requires -version 2
-
+# @date 2021-09-30
+#requires -version 3
 
 <#
 .SYNOPSIS
 	Gets the content of an INI file
 
 .DESCRIPTION
-	Gets the content of an INI file and returns it as a hashtable
+	Gets the content of an INI file and returns it as an ordered hashtable.
 
 .INPUTS
 	System.String
 
 .OUTPUTS
-	System.Collections.Hashtable
+	System.Collections.Specialized.OrderedDictionary
 
-.PARAMETER FilePath
+.PARAMETER Path
 	Specifies the path to the input file.
 
 .EXAMPLE
-	$FileContent = Get-IniContent "C:\myinifile.ini"
+	$FileContent = Import-Ini "C:\myinifile.ini"
 	-----------
 	Description
 	Saves the content of the c:\myinifile.ini in a hashtable called $FileContent
 
 .EXAMPLE
-	$inifilepath | $FileContent = Get-IniContent
+	$inifilepath | $FileContent = Import-Ini
 	-----------
 	Description
 	Gets the content of the ini file passed through the pipe into a hashtable called $FileContent
 
 .EXAMPLE
-	C:\PS>$FileContent = Get-IniContent "c:\settings.ini"
+	C:\PS>$FileContent = Import-Ini "c:\settings.ini"
 	C:\PS>$FileContent["Section"]["Key"]
 	-----------
 	Description
 	Returns the key "Key" of the section "Section" from the C:\settings.ini file
 
 .LINK
-	Out-IniFile
+	Export-Ini
 
 .LINK
 	https://gallery.technet.microsoft.com/scriptcenter/ea40c1ef-c856-434b-b8fb-ebd7a76e8d91
@@ -50,6 +49,7 @@
 .NOTES
 	Author  : Oliver Lipkau <oliver@lipkau.net>
 	Blog    : http://oliver.lipkau.net/blog/
+	Original: Get-IniContent
 	Source  : https://github.com/lipkau/PsIni
 			  http://gallery.technet.microsoft.com/scriptcenter/ea40c1ef-c856-434b-b8fb-ebd7a76e8d91
 	Version : 1.0 - 2010/03/12 - Initial release
@@ -58,42 +58,46 @@
 
 	#Requires -Version 2.0
 #>
-function Get-IniContent {
+function Import-Ini {
     [CmdletBinding()]
     param(
         [ValidateNotNullOrEmpty()]
-        [ValidateScript({(Test-Path $_) -and ((Get-Item $_).Extension -eq ".ini")})]
+        #[ValidateScript({(Test-Path $_) -and ((Get-Item $_).Extension -eq ".ini")})]
         [Parameter(ValueFromPipeline=$True,Mandatory=$True)]
-        [string]$FilePath
+        [string]$Path
     )
-
     begin {
-		Write-Verbose "$($MyInvocation.MyCommand.Name):: Function started"
 	}
-
     process {
-        Write-Verbose "$($MyInvocation.MyCommand.Name):: Processing file: $Filepath"
+        Write-Verbose "$($MyInvocation.MyCommand.Name):: importing $Path"
 
-        $ini = @{}
-        switch -regex -file $FilePath
+        $ini = [ordered]@{}
+        switch -regex -file $Path
         {
             "^\[(.+)\]$" # Section
             {
+				if ($section)
+				{
+					if ($CommentCount -gt 0)
+					{
+						$ini[$section][';CommentCount'] = $CommentCount
+					}
+				}
                 $section = $matches[1]
-                $ini[$section] = @{}
+                $ini[$section] = [ordered]@{}
                 $CommentCount = 0
             }
-            "^(;.*)$" # Comment
+            "^;(.*)$" # Comment
             {
                 if (!($section))
                 {
                     $section = "No-Section"
-                    $ini[$section] = @{}
+                    $ini[$section] = [ordered]@{}
                     $CommentCount = 0
                 }
                 $value = $matches[1]
                 $CommentCount = $CommentCount + 1
-                $name = "Comment" + $CommentCount
+                $name = ";Comment" + $CommentCount
                 $ini[$section][$name] = $value
             }
             "(.+?)\s*=\s*(.*)" # Key
@@ -101,28 +105,34 @@ function Get-IniContent {
                 if (!($section))
                 {
                     $section = "No-Section"
-                    $ini[$section] = @{}
+                    $ini[$section] = [ordered]@{}
                     $CommentCount = 0
                 }
                 $name,$value = $matches[1..2]
                 $ini[$section][$name] = $value
             }
         }
-        Write-Verbose "$($MyInvocation.MyCommand.Name):: Finished Processing file: $FilePath"
+		if ($section)
+		{
+			if ($CommentCount -gt 0)
+			{
+				$ini[$section][';CommentCount'] = $CommentCount
+			}
+		}
+		
+        Write-Verbose "$($MyInvocation.MyCommand.Name)::  imported $($ini.Keys.Count) ini sections"
         return $ini
     }
-
     end {
-		Write-Verbose "$($MyInvocation.MyCommand.Name):: Function ended"
 	}
 }
 
 <#
 .SYNOPSIS
-	Write hash content to INI file
+	Write hashtable content to INI file
 
 .DESCRIPTION
-	Write hash content to INI file
+	Write hashtable content to INI file
 
 .INPUTS
 	System.String
@@ -137,7 +147,7 @@ function Get-IniContent {
 .PARAMETER InputObject
 	Specifies the Hashtable to be written to the file. Enter a variable that contains the objects or type a command or expression that gets the objects.
 
-.PARAMETER FilePath
+.PARAMETER Path
 	Specifies the path to the output file.
 
  PARAMETER Encoding
@@ -156,34 +166,34 @@ function Get-IniContent {
 	Passes an object representing the location to the pipeline. By default, this cmdlet does not generate any output.
 
 .EXAMPLE
-	Out-IniFile $IniVar "C:\myinifile.ini"
+	Export-Ini $IniVar "C:\myinifile.ini"
 	-----------
 	Description
 	Saves the content of the $IniVar Hashtable to the INI File c:\myinifile.ini
 
 .EXAMPLE
-	$IniVar | Out-IniFile "C:\myinifile.ini" -Force
+	$IniVar | Export-Ini "C:\myinifile.ini" -Force
 	-----------
 	Description
 	Saves the content of the $IniVar Hashtable to the INI File c:\myinifile.ini and overwrites the file if it is already present
 
 .EXAMPLE
-	$file = Out-IniFile $IniVar "C:\myinifile.ini" -PassThru
+	$file = Export-Ini $IniVar "C:\myinifile.ini" -PassThru
 	-----------
 	Description
 	Saves the content of the $IniVar Hashtable to the INI File c:\myinifile.ini and saves the file into $file
 
 .EXAMPLE
 	$Category1 = @{“Key1”=”Value1”;”Key2”=”Value2”}
-$Category2 = @{“Key1”=”Value1”;”Key2”=”Value2”}
-$NewINIContent = @{“Category1”=$Category1;”Category2”=$Category2}
-Out-IniFile -InputObject $NewINIContent -FilePath "C:\MyNewFile.INI"
+	$Category2 = @{“Key1”=”Value1”;”Key2”=”Value2”}
+	$NewINIContent = @{“Category1”=$Category1;”Category2”=$Category2}
+	Export-Ini -InputObject $NewINIContent -Path "C:\MyNewFile.INI"
 	-----------
 	Description
 	Creating a custom Hashtable and saving it to C:\MyNewFile.INI
 
 .LINK
-	Get-IniContent
+	Import-Ini
 
 .LINK
 	https://gallery.technet.microsoft.com/7d7c867f-026e-4620-bf32-eca99b4e42f4
@@ -191,6 +201,7 @@ Out-IniFile -InputObject $NewINIContent -FilePath "C:\MyNewFile.INI"
 .NOTES
 	Author        : Oliver Lipkau <oliver@lipkau.net>
 	Blog        : http://oliver.lipkau.net/blog/
+	Original : Out-IniFile
 	Source        : https://github.com/lipkau/PsIni
 				  http://gallery.technet.microsoft.com/scriptcenter/ea40c1ef-c856-434b-b8fb-ebd7a76e8d91
 	Version        : 1.0 - 2010/03/12 - Initial release
@@ -199,7 +210,7 @@ Out-IniFile -InputObject $NewINIContent -FilePath "C:\MyNewFile.INI"
 
 	#Requires -Version 2.0
 #>
-function Out-IniFile {
+function Export-Ini {
     [CmdletBinding()]
     param(
         [switch]$Append,
@@ -212,7 +223,7 @@ function Out-IniFile {
         [ValidateNotNullOrEmpty()]
         [ValidatePattern('^([a-zA-Z]\:)?.+\.ini$')]
         [Parameter(Mandatory=$True)]
-        [string]$FilePath,
+        [string]$Path,
 
         [switch]$Force,
 
@@ -228,11 +239,17 @@ function Out-IniFile {
 	}
 
     process {
-        Write-Verbose "$($MyInvocation.MyCommand.Name):: Writing to file: $Filepath"
+        Write-Verbose "$($MyInvocation.MyCommand.Name):: Writing to file: $Path"
 
-        if ($append) {$outfile = Get-Item $FilePath}
-        else {$outFile = New-Item -ItemType file -Path $Filepath -Force:$Force}
-        if (!($outFile)) {Throw "Could not create File"}
+        if ($append) {
+			$outfile = Get-Item $Path
+		}
+        else {
+			$outFile = New-Item -ItemType file -Path $Path -Force:$Force
+		}
+        if (!($outFile)) {
+			throw "Could not create File"
+		}
         foreach ($i in $InputObject.keys)
         {
             if (!($($InputObject[$i].GetType().Name) -eq "Hashtable"))
@@ -240,15 +257,16 @@ function Out-IniFile {
                 #No Sections
                 Write-Verbose "$($MyInvocation.MyCommand.Name):: Writing key: $i"
                 Add-Content -Path $outFile -Value "$i=$($InputObject[$i])" -Encoding $Encoding
-            } else {
+            }
+			else {
                 #Sections
                 Write-Verbose "$($MyInvocation.MyCommand.Name):: Writing Section: [$i]"
                 Add-Content -Path $outFile -Value "[$i]" -Encoding $Encoding
                 Foreach ($j in $($InputObject[$i].keys | Sort-Object))
                 {
-                    if ($j -match "^Comment[\d]+") {
+                    if ($j -match "^;Comment[\d]+") {
                         Write-Verbose "$($MyInvocation.MyCommand.Name):: Writing comment: $j"
-                        Add-Content -Path $outFile -Value "$($InputObject[$i][$j])" -Encoding $Encoding
+                        Add-Content -Path $outFile -Value ";$($InputObject[$i][$j])" -Encoding $Encoding
                     } else {
                         Write-Verbose "$($MyInvocation.MyCommand.Name):: Writing key: $j"
                         Add-Content -Path $outFile -Value "$j=$($InputObject[$i][$j])" -Encoding $Encoding
@@ -259,7 +277,7 @@ function Out-IniFile {
             }
         }
         Write-Verbose "$($MyInvocation.MyCommand.Name):: Finished Writing to file: $path"
-        if ($PassThru) {Return $outFile}
+        if ($PassThru) {return $outFile}
     }
 
     end {

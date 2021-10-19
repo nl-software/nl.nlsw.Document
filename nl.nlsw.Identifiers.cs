@@ -15,7 +15,7 @@ using System.Text.RegularExpressions;
 /// Classes of Uniform Resource Identifiers.
 ///
 /// @author Ernst van der Pols
-/// @date 2019-03-19
+/// @date 2021-06-01
 /// @requires .NET Framework 4.5
 ///
 namespace nl.nlsw.Identifiers {
@@ -849,6 +849,7 @@ namespace nl.nlsw.Identifiers {
 	/// @see https://tools.ietf.org/html/rfc8141 (Uniform Resource Names)
 	/// @see https://tools.ietf.org/html/rfc2141 (URN Syntax, obsolete)
 	/// @see https://tools.ietf.org/html/rfc3986 (URI Generic Syntax)
+	/// @see https://tools.ietf.org/html/rfc4122 (UUID namespace registration)
 	///
 	public class UrnUri : Uri {
 		public static readonly string UriSchemeUrn = "urn";
@@ -862,6 +863,11 @@ namespace nl.nlsw.Identifiers {
 			RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.ExplicitCapture);
 		/// Match the URI components of a UUID URN (@todo rqf)
 		public static Regex UuidUrnRegex = new Regex(@"^(?i:urn:)(?i:uuid:)(?<uuid>.+)",
+			RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.ExplicitCapture);
+		/// Match the UUID format conform RFC4122
+		/// @note for further decomposition: determine the UUID Variant from the clock_seq_reserved field
+		///    and for RFC4122 variant "1 0 x" determine Version from the time_high_version field
+		public static Regex UuidRegex = new Regex(@"^(?<time_low>[0-9a-fA-F]{8})-(?<time_mid>[0-9a-fA-F]{4})-(?<time_high_version>[0-9a-fA-F]{4})-(?<clock_seq_reserved>[0-9a-fA-F]{4})-(?<node>[0-9a-fA-F]{12})$",
 			RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.ExplicitCapture);
 		/// Match the URI components of a PublicIdentifier URN (@todo rqf)
 		public static Regex PublicIdUrnRegex = new Regex(@"^(?i:urn:)(?i:publicid:)(?<publicid>.+)",
