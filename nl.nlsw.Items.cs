@@ -17,7 +17,7 @@ using System.Xml;
 /// Base classes for collections of items with attributes properties.
 ///
 /// @author Ernst van der Pols
-/// @date 2020-09-08
+/// @date 2021-11-11
 /// @requires .NET Framework 4.5
 ///
 namespace nl.nlsw.Items {
@@ -1418,6 +1418,9 @@ namespace nl.nlsw.Items {
 		private System.Xml.XmlNamespaceManager _NamespaceManager;
 		/// Hashtable of XML namespaces
 		private System.Collections.Hashtable _Namespaces;
+		/// Write the XmlDocument with non-significant line breaks and hierarchical indenting
+		/// for easy human reading.
+		private bool _Indent = false;
 
 		/// The culture to use during writing.
 		/// @todo distinguish from the iFormatProvider of the StringWriter
@@ -1470,6 +1473,13 @@ namespace nl.nlsw.Items {
 		/// The current property (value) requires Base64 encoding,
 		/// e.g. because of non-ASCII characters present
 		public bool EncodeBase64 { get; set; }
+		
+		/// Write the XmlDocument with non-significant line breaks
+		/// and hierarchical indenting for easy human reading.
+		public bool Indent {
+			get { return _Indent; }
+			set { _Indent = value; }
+		}
 
 		/// The XmlNamespaceManager needed for SelectNodes() and SelectSingleNode().
 		public System.Xml.XmlNamespaceManager NamespaceManager { 
@@ -1615,6 +1625,26 @@ namespace nl.nlsw.Items {
 					start += count; linestart += count;
 				}
 			}
+		}
+
+		/// Write the specified field values of the specified entry as CSV line to the stringbuffer of the writer.
+		/// @param fields the column (field) identifiers
+		/// @param entry the hashtable with the entry values; if null the field identifiers are written (header line)
+		public void WriteCSVLine(string[] fields, System.Collections.IDictionary entry = null) {
+			// use our own encoder in CompoundValue
+			nl.nlsw.Items.CompoundValue cv = new nl.nlsw.Items.CompoundValue();
+			if (entry != null) {
+				foreach (string field in fields) {
+					cv.Add(entry[field]);
+				}
+			}
+			else {
+				foreach (string field in fields) {
+					cv.Add(field);
+				}
+			}
+			// write the CSV line entry to the string buffer
+			WriteLine(cv.ToString());
 		}
 	}
 }

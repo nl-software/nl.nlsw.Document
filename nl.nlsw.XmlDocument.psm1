@@ -2,7 +2,7 @@
 #	| \| |=== |/\| |___ | |--- |===   ==== [__] |---  |  |/\| |--| |--< |===
 #
 # @file nl.nlsw.XmlDocument.psm1
-# @date 2021-05-07
+# @date 2021-10-30
 #requires -version 5
 using namespace System.Xml
 
@@ -33,6 +33,7 @@ class XmlDoc {
 	static [string] $nsOpenDocumentContainer = "urn:oasis:names:tc:opendocument:xmlns:container";
 	static [string] $nsvCard40 = "urn:ietf:params:xml:ns:vcard-4.0";
 	static [string] $nsXlink = "http://www.w3.org/1999/xlink";
+	static [string] $nsXsi = "http://www.w3.org/2001/XMLSchema-instance";
 	
 	# namespace prefixes with the corresponding namespace URI
 	static [hashtable] $namespaces = @{
@@ -41,6 +42,7 @@ class XmlDoc {
 		"odc" = [XmlDoc]::nsOpenDocumentContainer;
 		"xcard" = [XmlDoc]::nsvCard40;
 		"xlink" = [XmlDoc]::nsXlink;
+		"xsi" = [XmlDoc]::nsXsi;
 	};
 
 	# static constructor
@@ -54,10 +56,34 @@ class XmlDoc {
 	
 	# Set the attributes of the specified element
 	# @note existing attributes are not cleared, but may be overwritten
-	static [void] SetAttributes([System.Xml.XmlElement]$element, [hashtable]$attributes) {
+	# @param $attributes a hashtable or [ordered] hashtable with the attributes
+	static [void] SetAttributes([System.Xml.XmlElement]$element, [System.Collections.IDictionary]$attributes) {
 		if ($attributes) { 
 			foreach ($attr in $attributes.GetEnumerator()) {
-				$element.SetAttribute($attr.Key,$attr.Value)
+				if ($attr.Key.Contains(':')) {
+					$prefix,$localName = ($attr.Key -split ':')
+					if ($prefix.StartsWith("xml")) {
+						# xml: and xmlns: simply pass on
+						$element.SetAttribute($attr.Key,$attr.Value)
+					}
+					else {
+						# is it a known prefix
+						$ns = [XmlDoc]::namespaces[$prefix]
+						if (!$ns) {
+							# lookup namespaceURI in the document based on the prefix
+							$node = $element
+							$nsdecl = "xmlns:" + $prefix
+							while ($node -and !$ns) {
+								$ns = $node.GetAttribute($nsdecl)
+								$node = $node.ParentNode
+							}
+						}
+						$element.SetAttribute($localName, $ns, $attr.Value)
+					}
+				}
+				else {
+					$element.SetAttribute($attr.Key,$attr.Value)
+				}
 			}
 		}
 	}
@@ -168,7 +194,7 @@ function Add-HtmlElement {
 
 		[Parameter(Mandatory=$false, Position=1, ParameterSetName="Pipe")]
 		#[Parameter(Mandatory=$false, Position=2, ParameterSetName="Pos")]
-		[hashtable]$attributes = $null,
+		[System.Collections.IDictionary]$attributes = $null,
 		
 		[Parameter(Mandatory=$false, Position=2, ParameterSetName="Pipe")]
 		#[Parameter(Mandatory=$false, Position=3, ParameterSetName="Pos")]
@@ -280,11 +306,12 @@ function Add-XmlElement {
 
 		[Parameter(Mandatory=$true, Position=2, ParameterSetName="Pipe")]
 		[Parameter(Mandatory=$true, Position=3, ParameterSetName="Pos")]
+		[AllowEmptyString()]
 		[string]$namespace,
 
 		[Parameter(Mandatory=$false, Position=3, ParameterSetName="Pipe")]
 		[Parameter(Mandatory=$false, Position=4, ParameterSetName="Pos")]
-		[hashtable]$attributes = $null,
+		[System.Collections.IDictionary]$attributes = $null,
 
 		[Parameter(Mandatory=$false, Position=4, ParameterSetName="Pipe")]
 		[Parameter(Mandatory=$false, Position=5, ParameterSetName="Pos")]
@@ -292,7 +319,13 @@ function Add-XmlElement {
 	)
 	process {
 		$document = if ($parent -is [System.Xml.XmlDocument]) { $parent } else { $parent.OwnerDocument }
-		$child = $parent.AppendChild($document.CreateElement($prefix,$localName,$namespace))
+		$child = if ([string]::IsNullOrEmpty($namespace)) {
+			$document.CreateElement($localName)
+		}
+		else {
+			$document.CreateElement($prefix,$localName,$namespace)
+		}
+		$child = $parent.AppendChild($child)
 		[XmlDoc]::SetAttributes($child,$attributes)
 		if ($text) {
 			$child.InnerText = $text
