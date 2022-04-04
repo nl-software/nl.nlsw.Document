@@ -68,7 +68,7 @@
 	NestedModules = @(
 		".\nl.nlsw.Collections.psm1",
 		".\nl.nlsw.Document.psm1",
-		".\nl.nlsw.Document.Test.ps1",
+		#".\nl.nlsw.Document.Test.ps1",
 		".\nl.nlsw.EPUB.psm1",
 		".\nl.nlsw.Feed.psm1",
 		".\nl.nlsw.FileSystem.psm1",
@@ -89,8 +89,8 @@
 		"Get-OSArchitecture", "Show-Assembly","Show-Module","Show-Object","Write-Action",
 		"Export-Ini","Import-Ini",
 		"ConvertTo-EPUB",
-		"Read-Feed","Save-FeedAttachments",
-		"Test-ModuleDocument"
+		"Read-Feed","Save-FeedAttachments"
+		#,"Test-ModuleDocument"
 	)
 
 	# Cmdlets to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no cmdlets to export.
@@ -110,16 +110,16 @@
 
 	# List of all files packaged with this module
 	FileList=@(
+		".\source\nl.nlsw.Document.cs",
+		".\source\nl.nlsw.Identifiers.cs",
+		".\source\nl.nlsw.Items.cs",
+		".\tests\nl.nlsw.Document.Test.ps1",
 		".\nl.nlsw.Collections.psm1",
-		".\nl.nlsw.Document.cs",
 		".\nl.nlsw.Document.psm1",
-		".\nl.nlsw.Document.Test.ps1",
 		".\nl.nlsw.EPUB.psm1",
 		".\nl.nlsw.Feed.psm1",
 		".\nl.nlsw.FileSystem.psm1",
-		".\nl.nlsw.Identifiers.cs",
 		".\nl.nlsw.Ini.psm1",
-		".\nl.nlsw.Items.cs",
 		".\nl.nlsw.Items.psm1",
 		".\nl.nlsw.Process.Utility.psm1",
 		".\nl.nlsw.XmlDocument.psm1"
@@ -131,13 +131,13 @@
 		PSData = @{
 	
 			# Tags applied to this module. These help with module discovery in online galleries.
-			# Tags = @()
+			Tags = @('file','document','items','identifiers')
 	
 			# A URL to the license for this module.
-			# LicenseUri = ''
+			LicenseUri = 'https://spdx.org/licenses/EUPL-1.2.html'
 	
 			# A URL to the main website for this project.
-			# ProjectUri = ''
+			ProjectUri = 'https://github.com/nl-software/nl.nlsw.Document'
 	
 			# A URL to an icon representing this module.
 			# IconUri = ''

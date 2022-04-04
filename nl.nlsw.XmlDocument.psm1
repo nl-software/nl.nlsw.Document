@@ -2,6 +2,7 @@
 #	| \| |=== |/\| |___ | |--- |===   ==== [__] |---  |  |/\| |--| |--< |===
 #
 # @file nl.nlsw.XmlDocument.psm1
+# @copyright Ernst van der Pols, Licensed under the EUPL-1.2-or-later
 # @date 2021-10-30
 #requires -version 5
 using namespace System.Xml

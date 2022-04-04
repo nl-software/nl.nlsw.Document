@@ -2,6 +2,7 @@
 #	| \| |=== |/\| |___ | |--- |===   ==== [__] |---  |  |/\| |--| |--< |===
 #
 # @file nl.nlsw.EPUB.psm1
+# @copyright Ernst van der Pols, Licensed under the EUPL-1.2-or-later
 # @date 2020-09-30
 #requires -version 5
 

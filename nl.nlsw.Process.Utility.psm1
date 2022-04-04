@@ -2,13 +2,9 @@
 #	| \| |=== |/\| |___ | |--- |===   ==== [__] |---  |  |/\| |--| |--< |===
 #
 # @file nl.nlsw.Process.Utility.psm1
+# @copyright Ernst van der Pols, Licensed under the EUPL-1.2-or-later
 # @date 2020-06-18
 #requires -version 5
-
-<#
-.SYNOPSIS
- Shows the .NET assemblies that have been loaded into PowerShell.
-#>
 
 <#
 .SYNOPSIS
@@ -19,10 +15,15 @@ function Get-OSArchitecture {
 	(gwmi -Query "Select OSArchitecture from Win32_OperatingSystem").OSArchitecture
 }
 
+<#
+.SYNOPSIS
+ Shows the .NET assemblies that have been loaded into PowerShell.
+#>
 function Show-Assembly {
 	write-host "Loaded .NET assemblies"
 	[appdomain]::currentdomain.getassemblies() | sort -property fullname | format-table fullname | out-host
 }
+
 <#
 .SYNOPSIS
  Shows the loaded PowerShell modules and snap-ins.
@@ -32,6 +33,7 @@ function Show-Module {
 	Get-Module | out-host
 	Get-PSSnapin | out-host
 }
+
 <#
 .SYNOPSIS
  Shows the properties of an object.
@@ -40,6 +42,7 @@ function Show-Object {
 	param([object]$object)
 	$object | select-object -property * | out-host
 }
+
 <#
 .SYNOPSIS
  Writes a message to the host, indicating an action that has been or is going to be performed on an object.

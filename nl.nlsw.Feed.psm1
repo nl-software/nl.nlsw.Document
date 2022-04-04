@@ -2,6 +2,7 @@
 #	| \| |=== |/\| |___ | |--- |===   ==== [__] |---  |  |/\| |--| |--< |===
 #
 # @file nl.nlsw.Feed.psm1
+# @copyright Ernst van der Pols, Licensed under the EUPL-1.2-or-later
 # @date 2020-09-08
 # @author Ernst van der Pols
 #requires -version 5

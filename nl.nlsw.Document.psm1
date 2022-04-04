@@ -2,21 +2,27 @@
 #	| \| |=== |/\| |___ | |--- |===   ==== [__] |---  |  |/\| |--| |--< |===
 #
 # @file nl.nlsw.Document.psm1
+# @copyright Ernst van der Pols, Licensed under the EUPL-1.2-or-later
 #requires -version 5
 
 # Import the nl.nlsw.Document, nl.nlsw.identifiers, and nl.nlsw.Items .NET classes.
 #
-if (!(test-path "$PSScriptRoot\nl.nlsw.Document.dll")) {
-	# compile the C# types to a DLL library
-	Add-Type -Path "$PSScriptRoot\nl.nlsw.Document.cs",`
-		"$PSScriptRoot\nl.nlsw.Identifiers.cs",`
-		"$PSScriptRoot\nl.nlsw.Items.cs" `
-		-ReferencedAssemblies "System.Xml.dll" `
-		-OutputAssembly "$PSScriptRoot\nl.nlsw.Document.dll" -OutputType Library
+if ((test-path "$PSScriptRoot\bin\Debug\netstandard2.0\nl.nlsw.Document.dll")) {
+	# import the library
+	Add-Type -Path "$PSScriptRoot\bin\Debug\netstandard2.0\nl.nlsw.Document.dll"
 }
-# import the library
-Add-Type -Path "$PSScriptRoot\nl.nlsw.Document.dll"
-
+else {
+	if (!(test-path "$PSScriptRoot\nl.nlsw.Document.dll")) {
+		# compile the C# types to a DLL library
+		Add-Type -Path "$PSScriptRoot\source\nl.nlsw.Document.cs",`
+			"$PSScriptRoot\source\nl.nlsw.Identifiers.cs",`
+			"$PSScriptRoot\source\nl.nlsw.Items.cs" `
+			-ReferencedAssemblies "System.Xml.dll" `
+			-OutputAssembly "$PSScriptRoot\nl.nlsw.Document.dll" -OutputType Library
+	}
+	# import the library
+	Add-Type -Path "$PSScriptRoot\nl.nlsw.Document.dll"
+}
 
 <#
 .SYNOPSIS

@@ -2,6 +2,7 @@
 #	| \| |=== |/\| |___ | |--- |===   ==== [__] |---  |  |/\| |--| |--< |===
 #
 # @file nl.nlsw.Collections.psm1
+# @copyright Ernst van der Pols, Licensed under the EUPL-1.2-or-later
 # @date 2019-05-21
 #requires -version 2
 

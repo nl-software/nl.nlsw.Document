@@ -1,8 +1,8 @@
 //	__ _ ____ _  _ _    _ ____ ____   ____ ____ ____ ___ _  _ ____ ____ ____
 //	| \| |=== |/\| |___ | |--- |===   ==== [__] |---  |  |/\| |--| |--< |===
 //
-// @file nl.nlsw.Items.cs
-//
+/// @file nl.nlsw.Items.cs
+/// @copyright Ernst van der Pols, Licensed under the EUPL-1.2-or-later
 
 using System;
 using System.Collections;
@@ -17,7 +17,7 @@ using System.Xml;
 /// Base classes for collections of items with attributes properties.
 ///
 /// @author Ernst van der Pols
-/// @date 2021-11-11
+/// @date 2022-03-29
 /// @requires .NET Framework 4.5
 ///
 namespace nl.nlsw.Items {
@@ -652,20 +652,20 @@ namespace nl.nlsw.Items {
 	}
 
 	///
-	/// A keyed collection of directory of ItemObjects.
+	/// A keyed collection of ItemObjects.
 	///
-	/// The directory has an internal dictionary for a fast lookup of items, based on their Identifier.
+	/// The ItemList has an internal dictionary for a fast lookup of items, based on their Identifier.
 	/// Since the Identifier of an ItemObject is mutable, the update of the ItemObject.Identifier results in an update of the 
-	/// associated Directory as well; the ItemObject holds a reference to the Dictionary for this.
-	/// An ItemObject can only be in one directory.
+	/// associated ItemList as well; the ItemObject holds a reference to the Dictionary for this.
+	/// An ItemObject can only be in one ItemList.
 	/// @see https://docs.microsoft.com/en-us/dotnet/api/system.collections.objectmodel.keyedcollection-2?view=netframework-4.5.2
 	///
-	public class Directory : System.Collections.ObjectModel.KeyedCollection<string,ItemObject> {
+	public class ItemList : System.Collections.ObjectModel.KeyedCollection<string,ItemObject> {
 	
 		/// The default constructor.
 		/// The specified dictionary threshold 0 means that the internal Dictionary 
 		/// is created the first time an object is added.
-		public Directory() : base(null, 0) {
+		public ItemList() : base(null, 0) {
 		}
 
 		/// Create a new ItemObject and add it to the Dictionary.
@@ -684,18 +684,18 @@ namespace nl.nlsw.Items {
 		}
 
 		protected override void InsertItem(int index, ItemObject newItem) {
-			if (newItem.Directory != null) {
-				throw new ArgumentException("The item is already registered in a directory.",newItem.Name);
+			if (newItem.ItemList != null) {
+				throw new ArgumentException("The item is already registered in a list.",newItem.Name);
 			}
 
 			base.InsertItem(index, newItem);
-			newItem.Directory = this;
+			newItem.ItemList = this;
 		}
 
-		/// Move the items from the other directory into this one.
+		/// Move the items from the other ItemList into this one.
 		/// @post other will be empty
 		/// @exception one of the imported items has a key that already exists
-		public void MoveFrom(Directory other) {
+		public void MoveFrom(ItemList other) {
 			for (int i = other.Count - 1; i >= 0; i--) {
 				ItemObject p = other[i];
 				other.RemoveItem(i);
@@ -706,25 +706,25 @@ namespace nl.nlsw.Items {
 		protected override void SetItem(int index, ItemObject newItem) {
 			ItemObject replaced = Items[index];
 
-			if (newItem.Directory != null) {
-				throw new ArgumentException("The item is already registered in a directory.",newItem.Name);
+			if (newItem.ItemList != null) {
+				throw new ArgumentException("The item is already registered in a list.",newItem.Name);
 			}
 
 			base.SetItem(index, newItem);
-			newItem.Directory = this;
-			replaced.Directory = null;
+			newItem.ItemList = this;
+			replaced.ItemList = null;
 		}
 
 		protected override void RemoveItem(int index) {
 			ItemObject removedItem = Items[index];
 
 			base.RemoveItem(index);
-			removedItem.Directory = null;
+			removedItem.ItemList = null;
 		}
 
 		protected override void ClearItems() {
 			foreach (ItemObject item in Items) {
-				item.Directory = null;
+				item.ItemList = null;
 			}
 			base.ClearItems();
 		}
@@ -737,9 +737,9 @@ namespace nl.nlsw.Items {
 	
 	///
 	/// The ItemObject class represents a named item with a unique identifier,
-	/// that is collected in a Directory.
+	/// that is collected in an ItemList.
 	///
-	/// An ItemObject may have properties. Each ItemObject is registered in a Directory.
+	/// An ItemObject may have properties. Each ItemObject is registered in a single ItemList.
 	///
 	/// @note The name Item cannot be used if you want the class to have an indexer property.
 	/// 		The .NET runtime uses the name "Item" for these properties, and this results
@@ -750,8 +750,8 @@ namespace nl.nlsw.Items {
 	/// @see https://schema.org/Thing
 	///
 	public class ItemObject {
-		/// The directory (keyed collection of items) that this ItemObject belongs to.
-		private Directory _Directory = null;
+		/// The ItemList (keyed collection of items) that this ItemObject belongs to.
+		private ItemList _ItemList = null;
 		/// Unique identifier of the item, e.g. a urn:uuid
 		private nl.nlsw.Identifiers.Uri _Identifier = null;
 		/// Properties of the item
@@ -768,12 +768,12 @@ namespace nl.nlsw.Items {
 			}
 		}
 
-		/// The directory that this ItemObject belongs to.
+		/// The ItemList that this ItemObject belongs to.
 		[System.Xml.Serialization.XmlIgnore()]
-		public Directory Directory {
-			get { return this._Directory; }
+		public ItemList ItemList {
+			get { return this._ItemList; }
 			internal set { 
-				this._Directory = value;
+				this._ItemList = value;
 			}
 		}
 
@@ -789,17 +789,17 @@ namespace nl.nlsw.Items {
 		/// e-mail address) will fail since UserInfo is not included in the Uri.Equals.
 		/// A UUID is preferred as identifier.
 		///
-		/// The (string value) Identifier is used as key in the associated Directory.
-		/// If the Identifier is changed, the Directory is automatically updated.
+		/// The (string value) Identifier is used as key in the associated ItemList.
+		/// If the Identifier is changed, the ItemList is automatically updated.
 		/// In that case, an ArgumentException is thrown if the new value is null or an existing key.
 		///
 		[System.Xml.Serialization.XmlIgnore()]
 		public nl.nlsw.Identifiers.Uri Identifier {
 			get { return this._Identifier; } 
 			set {
-				if (Directory != null) {
+				if (ItemList != null) {
 					// @todo change Identifier comparison from string to the Identifier object itself
-					Directory.ChangeKey(this, value == null ? null : value.ToString());
+					ItemList.ChangeKey(this, value == null ? null : value.ToString());
 				}
 				this._Identifier = value;
 			}
@@ -1100,9 +1100,6 @@ namespace nl.nlsw.Items {
 		public System.Text.StringBuilder ContentLine {
 			get { return _ContentLine; }
 		}
-		
-		/// The target directory for read ItemObjects
-		public Directory CurrentDirectory { get; set; }
 
 		/// The current source encoding
 		public System.Text.Encoding CurrentEncoding {
@@ -1120,7 +1117,10 @@ namespace nl.nlsw.Items {
 		public ItemObject CurrentItem {
 			get { return (_ItemStack.Count == 0) ? null : _ItemStack.Peek(); }
 		}
-		
+
+		/// The target ItemList for read ItemObjects
+		public ItemList CurrentItemList { get; set; }
+
 		/// The default Encoding to use
 		public System.Text.Encoding DefaultEncoding {
 			get { return _DefaultEncoding; }

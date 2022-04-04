@@ -1,8 +1,9 @@
 //	__ _ ____ _  _ _    _ ____ ____   ____ ____ ____ ___ _  _ ____ ____ ____
 //	| \| |=== |/\| |___ | |--- |===   ==== [__] |---  |  |/\| |--| |--< |===
 //
-// @file nl.nlsw.Identifiers.cs
-//
+/// @file nl.nlsw.Identifiers.cs
+/// @copyright Ernst van der Pols, Licensed under the EUPL-1.2-or-later
+
 
 using System;
 using System.Collections;

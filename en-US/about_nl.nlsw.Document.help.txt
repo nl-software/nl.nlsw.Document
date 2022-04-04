@@ -7,8 +7,8 @@ SHORT DESCRIPTION
 LONG DESCRIPTION
     The nl.nlsw.Document module supports PowerShell processing of documents.
 
-    The module contains classes and (advanced) functions to support more
-    specific document type processing PowerShell modules. The interfaces may
+    The module contains classes and (advanced) functions to support specific
+    document type processing by PowerShell modules. The interfaces may
     change without notice.
 
     The module includes the following submodules:
@@ -41,11 +41,5 @@ SEE ALSO
     http://www.nlsw.nl
 
 
-
-
-
-
-
-
-
-
+LICENSE
+    Licensed under the EUPL-1.2-or-later
