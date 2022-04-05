@@ -68,7 +68,6 @@
 	NestedModules = @(
 		".\nl.nlsw.Collections.psm1",
 		".\nl.nlsw.Document.psm1",
-		#".\nl.nlsw.Document.Test.ps1",
 		".\nl.nlsw.EPUB.psm1",
 		".\nl.nlsw.Feed.psm1",
 		".\nl.nlsw.FileSystem.psm1",
@@ -90,7 +89,6 @@
 		"Export-Ini","Import-Ini",
 		"ConvertTo-EPUB",
 		"Read-Feed","Save-FeedAttachments"
-		#,"Test-ModuleDocument"
 	)
 
 	# Cmdlets to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no cmdlets to export.
