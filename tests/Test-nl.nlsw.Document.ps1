@@ -1,6 +1,6 @@
 ﻿<#
 .SYNOPSIS
- Test the functionality of the Powershell module nl.nlsw.Document.
+ Test the functionality of the PowerShell module nl.nlsw.Document.
   
 .DESCRIPTION
  Runs functional tests of the functions and classes in the nl.nlsw.Document module.
@@ -9,7 +9,7 @@
  No output to the host
 
 .NOTES
- @date 2022-04-04
+ @date 2022-04-05
  @author Ernst van der Pols
  @language PowerShell 5
 #>
