@@ -111,7 +111,7 @@
 		".\source\nl.nlsw.Document.cs",
 		".\source\nl.nlsw.Identifiers.cs",
 		".\source\nl.nlsw.Items.cs",
-		".\tests\nl.nlsw.Document.Test.ps1",
+		".\tests\Test-nl.nlsw.Document.ps1",
 		".\nl.nlsw.Collections.psm1",
 		".\nl.nlsw.Document.psm1",
 		".\nl.nlsw.EPUB.psm1",
