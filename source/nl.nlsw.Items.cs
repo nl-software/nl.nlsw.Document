@@ -17,7 +17,7 @@ using System.Xml;
 /// Base classes for collections of items with attributes properties.
 ///
 /// @author Ernst van der Pols
-/// @date 2022-03-29
+/// @date 2022-04-19
 /// @requires .NET Framework 4.5
 ///
 namespace nl.nlsw.Items {
@@ -26,7 +26,7 @@ namespace nl.nlsw.Items {
 	/// The base class allows for multiple entries with the same key,
 	/// using case insensitive CultureInvariant key comparison.
 	public class Attributes : System.Collections.Specialized.NameValueCollection {
-		
+
 		/// Check if the attribute with the specified name contains the specified value.
 		/// Uses a case-sensitive comparison.
 		public bool HasValue(string name, string value) {
@@ -144,7 +144,7 @@ namespace nl.nlsw.Items {
 				}
 			}
 		}
-		
+
 		/// Counterpart of GetValues(), missing in the base class.
 		public void SetValues(string name, string[] values) {
 			if (values == null || values.Length == 0) {
@@ -164,15 +164,15 @@ namespace nl.nlsw.Items {
 	/// of a Comma-Separated-Values data file, as specified in RFC 4180.
 	///
 	/// The class extends this specification to support nested CompoundValues as well,
-	/// i.e. any value can be a comma-separated-value that (recursively) holds another 
+	/// i.e. any value can be a comma-separated-value that (recursively) holds another
 	/// list of comma-separated-values, surrounded by parentheses.
-	/// This extension provides for a simple format for serializing an ordered, directed 
+	/// This extension provides for a simple format for serializing an ordered, directed
 	/// rooted tree of data nodes.
 	///
 	/// The class is based on a generic object list. For serialization to string the ToString()
 	/// operation of the objects are used. De-serialization builds a CompoundValue tree of strings.
 	/// A nested CompoundValue has a link to is Parent CompoundValue.
-	/// 
+	///
 	/// @see https://tools.ietf.org/html/rfc4180
 	/// @see https://en.wikipedia.org/wiki/Comma-separated_values
 	/// @see https://www.loc.gov/preservation/digital/formats/fdd/fdd000323.shtml
@@ -187,7 +187,7 @@ namespace nl.nlsw.Items {
 		/// Characters that require escaping
 		public static readonly char[] Delimiters = {',','"','\r','\n',
 			CompoundOpen,CompoundClose};
-		
+
 		/// The depth of this node in the tree.
 		public int Depth {
 			get {
@@ -197,7 +197,7 @@ namespace nl.nlsw.Items {
 				return result;
 			}
 		}
-	
+
 		/// The parent node.
 		public CompoundValue Parent { get; set; }
 
@@ -210,7 +210,7 @@ namespace nl.nlsw.Items {
 		public CompoundValue(string value) {
 			FromString(value);
 		}
-		
+
 		/// Get a value at the specified index, null if not present or index out-of-range.
 		public object GetValue(int index) {
 			if (index < Count) {
@@ -218,7 +218,7 @@ namespace nl.nlsw.Items {
 			}
 			return null;
 		}
-		
+
 		/// Set the CompoundValue to the values in the list, array, or other enumerable
 		/// @note List<T> has a constructor for IEnumerable, but no assignment
 		public void FromEnumerable(IEnumerable list) {
@@ -320,7 +320,7 @@ namespace nl.nlsw.Items {
 			}
 			this[index] = value;
 		}
-		
+
 		///
 		/// Match the (text) value or the fields of the CompoundValue with the specified regular expression.
 		/// @return the first successful match encountered, or null otherwise
@@ -346,7 +346,7 @@ namespace nl.nlsw.Items {
 
 		///
 		/// Test whether the (compound) text value matches the regular expression.
-		/// 
+		///
 		public static bool TextValueMatches(object value, System.Text.RegularExpressions.Regex regex) {
 			Match m = TextValueMatch(value,regex);
 			return (m != null) && m.Success;
@@ -359,7 +359,7 @@ namespace nl.nlsw.Items {
 			ToStringBuilderFormatted(sb,indices,separator,open,close,includeEmpty);
 			return sb.ToString();
 		}
-		
+
 		public override string ToString() {
 			StringBuilder sb = new StringBuilder();
 			ToStringBuilder(sb);
@@ -396,7 +396,7 @@ namespace nl.nlsw.Items {
 					}
 				}
 			}
-			
+
 			if (Parent != null) {
 				sb.Append(CompoundClose);
 			}
@@ -467,7 +467,7 @@ namespace nl.nlsw.Items {
 			get { return Value as CompoundValue; }
 			set { Value = value; }
 		}
-		
+
 		/// Get the names of the compound fields (if any)
 		public virtual string[] FieldNames { get; set; }
 
@@ -530,7 +530,6 @@ namespace nl.nlsw.Items {
 				throw new Exception("FieldNames not initialized");
 			}
 			return FieldNames[(index < FieldNames.Length ? index : FieldNames.Length - 1)];
-			
 		}
 
 		/// Get the value, optionally at the specified indices.
@@ -557,7 +556,7 @@ namespace nl.nlsw.Items {
 			}
 			return null;
 		}
-		
+
 		/// Get the values as string, optionally at the specified field index.
 		public string[] GetValuesAsString(int? index = null) {
 			object value = base.Value;
@@ -581,7 +580,7 @@ namespace nl.nlsw.Items {
 			}
 			return result;
 		}
-		
+
 		/// Set the value, optionally at the specified indices.
 		public void SetValue(object value, int index = 0, int subIndex = 0) {
 			// check if we have a compound value to hold the new value
@@ -655,28 +654,28 @@ namespace nl.nlsw.Items {
 	/// A keyed collection of ItemObjects.
 	///
 	/// The ItemList has an internal dictionary for a fast lookup of items, based on their Identifier.
-	/// Since the Identifier of an ItemObject is mutable, the update of the ItemObject.Identifier results in an update of the 
+	/// Since the Identifier of an ItemObject is mutable, the update of the ItemObject.Identifier results in an update of the
 	/// associated ItemList as well; the ItemObject holds a reference to the Dictionary for this.
 	/// An ItemObject can only be in one ItemList.
 	/// @see https://docs.microsoft.com/en-us/dotnet/api/system.collections.objectmodel.keyedcollection-2?view=netframework-4.5.2
 	///
 	public class ItemList : System.Collections.ObjectModel.KeyedCollection<string,ItemObject> {
-	
+
 		/// The default constructor.
-		/// The specified dictionary threshold 0 means that the internal Dictionary 
+		/// The specified dictionary threshold 0 means that the internal Dictionary
 		/// is created the first time an object is added.
 		public ItemList() : base(null, 0) {
 		}
 
 		/// Create a new ItemObject and add it to the Dictionary.
 		/// @param name the (display) name of the ItemObject
-		/// @param id a unique identifier URI; by default a new UUID URI is generated 
+		/// @param id a unique identifier URI; by default a new UUID URI is generated
 		public ItemObject NewItem(string name = null, nl.nlsw.Identifiers.Uri id = null) {
 			ItemObject result = new ItemObject(name,id);
 			Add(result);
 			return result;
 		}
-		
+
 		/// Get the key of the ItemObject object.
 		protected override string GetKeyForItem(ItemObject item) {
 			// The Identifier is the key.
@@ -734,7 +733,7 @@ namespace nl.nlsw.Items {
 			base.ChangeItemKey(item, newKey);
 		}
 	}
-	
+
 	///
 	/// The ItemObject class represents a named item with a unique identifier,
 	/// that is collected in an ItemList.
@@ -756,7 +755,7 @@ namespace nl.nlsw.Items {
 		private nl.nlsw.Identifiers.Uri _Identifier = null;
 		/// Properties of the item
 		private Properties _Properties = null;
-		
+
 		/// Get a property or the properties by case insensitive name
 		[System.Xml.Serialization.XmlIgnore()]
 		public object this[string name] {
@@ -772,7 +771,7 @@ namespace nl.nlsw.Items {
 		[System.Xml.Serialization.XmlIgnore()]
 		public ItemList ItemList {
 			get { return this._ItemList; }
-			internal set { 
+			internal set {
 				this._ItemList = value;
 			}
 		}
@@ -795,7 +794,7 @@ namespace nl.nlsw.Items {
 		///
 		[System.Xml.Serialization.XmlIgnore()]
 		public nl.nlsw.Identifiers.Uri Identifier {
-			get { return this._Identifier; } 
+			get { return this._Identifier; }
 			set {
 				if (ItemList != null) {
 					// @todo change Identifier comparison from string to the Identifier object itself
@@ -815,7 +814,7 @@ namespace nl.nlsw.Items {
 
 		[System.Xml.Serialization.XmlIgnore()]
 		public string Name { get; set; }
-		
+
 		[System.Xml.Serialization.XmlIgnore()]
 		public Properties Properties {
 			get {
@@ -829,7 +828,7 @@ namespace nl.nlsw.Items {
 
 		/// Default and initializing constructor
 		/// @param name the (display) name of the ItemObject
-		/// @param id a unique identifier URI; by default a new UUID URI is generated 
+		/// @param id a unique identifier URI; by default a new UUID URI is generated
 		public ItemObject(string name = null, nl.nlsw.Identifiers.Uri id = null) {
 			if (id == null) {
 				// create a new UUID URI
@@ -874,7 +873,7 @@ namespace nl.nlsw.Items {
 		public override string ToString() {
 			return (string.IsNullOrEmpty(Name) ? (Identifier == null ? null : Identifier.ToString()) : Name);
 		}
-	}	
+	}
 
 	/// A stack of ItemObjects, typically used when processing nested sets of ItemObjects.
 	public class ItemStack : System.Collections.Generic.Stack<ItemObject> {
@@ -890,7 +889,7 @@ namespace nl.nlsw.Items {
 		private object _Value;
 		/// the name of the attribute that holds the group name of the property
 		public static readonly string GroupNameAttribute = ".group";
-		
+
 		/// The name of the group that the property belongs to.
 		public string GroupName {
 			get { return GetAttribute(GroupNameAttribute); }
@@ -898,7 +897,7 @@ namespace nl.nlsw.Items {
 		}
 
 		/// The attributes of the property
-		public Attributes Attributes { 
+		public Attributes Attributes {
 			get {
 				if (_attrs == null) {
 					_attrs = new Attributes();
@@ -906,13 +905,13 @@ namespace nl.nlsw.Items {
 				return _attrs;
 			}
 		}
-		
+
 		/// Get or set an attribute of the property.
 		public string this[string name] {
 			get { return GetAttribute(name); }
 			set { SetAttribute(name, value); }
 		}
-		
+
 		/// Get an icon character representing the (type of) Property.
 		/// @note to represent any Unicode char, you need a string in C#,
 		/// 	since a char is only 16-bit
@@ -927,7 +926,7 @@ namespace nl.nlsw.Items {
 
 		/// The value of the property
 		public virtual object Value {
-			get { return _Value; } 
+			get { return _Value; }
 			set { _Value = value; }
 		}
 
@@ -939,7 +938,7 @@ namespace nl.nlsw.Items {
 		public bool HasAttributes {
 			get { return (_attrs != null) && (_attrs.Count > 0); }
 		}
-		
+
 		/// Class constructor
 		static Property() {
 		}
@@ -962,7 +961,7 @@ namespace nl.nlsw.Items {
 			}
 			return defaultValue;
 		}
-		
+
 		/// Test whether the property has an attribute with the specified name and (optionally) value combination.
 		/// Name comparison is case-insensitive, value comparison is case-sensitive.
 		public bool HasAttribute(string name, string value = null) {
@@ -974,7 +973,7 @@ namespace nl.nlsw.Items {
 			}
 			return false;
 		}
-		
+
 		/// Check if this property has the specified name.
 		/// Performs a case-insensitive compare.
 		public bool HasName(string name) {
@@ -1000,7 +999,7 @@ namespace nl.nlsw.Items {
 		public override string ToString() {
 			return Value == null ? null : Value.ToString();
 		}
-		
+
 		/// IFormattable.ToString()
 		/// To be used for (formatted) output of the property value.
 		/// By default, returns Value.ToString()
@@ -1008,11 +1007,11 @@ namespace nl.nlsw.Items {
 			return Value == null ? null : Value.ToString();
 		}
 	}
-	
+
 	/// A list of properties
 	/// The list may contain multiple properties with the same name.
 	public class Properties : List<Property> {
-	
+
 		/// Get a property or the properties by case insensitive name
 		public object this[string name] {
 			get {
@@ -1061,7 +1060,7 @@ namespace nl.nlsw.Items {
 			}
 			return result;
 		}
-		
+
 		/// Get the first property by (optionally) case insensitive name,
 		/// and (optionally) case insensitive attribute name,
 		/// and (optionally) case sensitive attribute value.
@@ -1074,7 +1073,7 @@ namespace nl.nlsw.Items {
 			}
 			return null;
 		}
-		
+
 		/// Remove all properties with the specified name
 		public void RemoveProperty(string name) {
 			for (int i = Count-1; i >= 0; i--) {
@@ -1084,7 +1083,7 @@ namespace nl.nlsw.Items {
 			}
 		}
 	}
-	
+
 	/// Base class for reading ItemObjects from a stream
 	public class Reader {
 		/// declare the stack used during parsing (nested)  items
@@ -1130,8 +1129,8 @@ namespace nl.nlsw.Items {
 		public int FileCount { get; set; }
 
 		/// The current file being read
-		public System.IO.FileSystemInfo FileInfo { get; set; }
-		
+		public System.IO.FileInfo FileInfo { get; set; }
+
 		/// The name of the file or other source being read
 		public string FileName {
 			get {
@@ -1154,17 +1153,17 @@ namespace nl.nlsw.Items {
 				return "<pipe>";
 			}
 		}
-		
+
 		/// Check if the reader has cached lines
 		public bool HasCachedLines {
 			get { return _LineCache != null && _LineCache.Count > 0; }
 		}
-		
+
 		/// Check if the reader has a content line read
 		public bool HasContentLine {
 			get { return _ContentLine.Length > 0; }
 		}
-		
+
 		/// The buffer for lines to process when no format is known yet
 		public List<string> LineCache {
 			get {
@@ -1181,15 +1180,15 @@ namespace nl.nlsw.Items {
 		/// Next line must be joined with the previous one,
 		/// as part of QuotedPrintable encoded data
 		public bool QuotedPrintableFolding { get; set; }
-		
+
 		/// To keep track of the ItemObject nesting
 		public ItemStack Stack {
 			get { return _ItemStack; }
 		}
-		
+
 		/// The TextReader to use for reading
 		public System.IO.TextReader TextReader { get; set; }
-		
+
 		/// Default constructor
 		public Reader() {
 			_DefaultEncoding = System.Text.Encoding.UTF8;
@@ -1213,10 +1212,10 @@ namespace nl.nlsw.Items {
 		///
 		/// - a string containing delimited list members (a List<String> is returned with the members; actually a CompundValue, since that is also a List)
 		///   @example "member 1,member\, with path \\,member 3" => ( "member 1", "member, with path \", "member 3" )
-		/// 
+		///
 		/// - a string containing delimited fields with simple string content or a list of members (a List<Object> is returned with the fields, either a String or a List<String>)
 		///   @example "field 1;field2\, member 1, field2\, member 2;field 3" => ( "field 1", ( "field 2, member1", "field 2, member 2"), "field 3" )
-		/// 
+		///
 		/// Example application is decoding the vCard property value.
 		///
 		/// @param data the input data string
@@ -1224,7 +1223,7 @@ namespace nl.nlsw.Items {
 		/// @param replacements the additional escape sequences that need to be decoded; the delimiters are replaced automatically; a non-specified escape sequence
 		///			is left as-is.
 		/// @return a System.String or a nl.nlsw.Items.CompoundValue
-		/// 
+		///
 		public static object DecodeCompoundValue(string data, char[] delimiters, Dictionary<char,string> replacements = null) {
 			int position = (delimiters != null) ? data.IndexOfAny(delimiters) : -1;
 			if (position == -1) {
@@ -1235,7 +1234,7 @@ namespace nl.nlsw.Items {
 			CompoundValue cv = null;
 			string replacement;
 			int start = 0;
-			
+
 			for (; (position = data.IndexOfAny(delimiters, position)) != -1; start = position) {
 				sb.Append(data,start, position - start);
 				start = position;
@@ -1325,10 +1324,10 @@ namespace nl.nlsw.Items {
 			// convert bytes to text
 			return encoding.GetString(bytes);
 		}
-					
+
 		///
 		/// Decode Base64 encoded text recursively in a list
-		/// 
+		///
 		public static System.Collections.IList DecodeBase64Text(System.Collections.IList data, System.Text.Encoding encoding) {
 			for (int i = 0; i < data.Count; i++) {
 				if (data[i] is string) {
@@ -1342,7 +1341,7 @@ namespace nl.nlsw.Items {
 		}
 
 		/// Decode Quoted-Printable text
-		/// 
+		///
 		/// @see https://en.wikipedia.org/wiki/Quoted-printable
 		/// @see https://stackoverflow.com/questions/2226554/c-class-for-decoding-quoted-printable-encoding
 		public static string DecodeQuotedPrintable(string data, System.Text.Encoding encoding) {
@@ -1386,9 +1385,9 @@ namespace nl.nlsw.Items {
 			}
 			return result.ToString();
 		}
-		
+
 		/// Decode Quoted-Printable text recursively in a list
-		/// 
+		///
 		public static System.Collections.IList DecodeQuotedPrintable(System.Collections.IList data, System.Text.Encoding encoding) {
 			for (int i = 0; i < data.Count; i++) {
 				if (data[i] is string) {
@@ -1424,13 +1423,13 @@ namespace nl.nlsw.Items {
 
 		/// The culture to use during writing.
 		/// @todo distinguish from the iFormatProvider of the StringWriter
-		public System.Globalization.CultureInfo CultureInfo { 
+		public System.Globalization.CultureInfo CultureInfo {
 			get; set;
 		}
-		
+
 		/// The current XmlNode to write to.
 		/// By default of a specific node set the DocumentElement of the Document is returned.
-		public System.Xml.XmlNode CurrentNode { 
+		public System.Xml.XmlNode CurrentNode {
 			get {
 				if (_CurrentNode == null && Document != null) {
 					return Document.DocumentElement;
@@ -1455,7 +1454,7 @@ namespace nl.nlsw.Items {
 		}
 
 		/// The XmlDocument to write to.
-		public System.Xml.XmlDocument Document { 
+		public System.Xml.XmlDocument Document {
 			get { return _Document; }
 			set {
 				if (_Document != value) {
@@ -1466,14 +1465,14 @@ namespace nl.nlsw.Items {
 			}
 		}
 
-		public override System.Text.Encoding Encoding { 
+		public override System.Text.Encoding Encoding {
 			get { return System.Text.Encoding.UTF8; }
 		}
-		
+
 		/// The current property (value) requires Base64 encoding,
 		/// e.g. because of non-ASCII characters present
 		public bool EncodeBase64 { get; set; }
-		
+
 		/// Write the XmlDocument with non-significant line breaks
 		/// and hierarchical indenting for easy human reading.
 		public bool Indent {
@@ -1482,7 +1481,7 @@ namespace nl.nlsw.Items {
 		}
 
 		/// The XmlNamespaceManager needed for SelectNodes() and SelectSingleNode().
-		public System.Xml.XmlNamespaceManager NamespaceManager { 
+		public System.Xml.XmlNamespaceManager NamespaceManager {
 			get {
 				if ((_NamespaceManager == null) && (_Document != null)) {
 					// create the manager
@@ -1499,7 +1498,7 @@ namespace nl.nlsw.Items {
 		}
 
 		/// The XML namespaces needed for SelectNodes() and SelectSingleNode().
-		public System.Collections.Hashtable Namespaces { 
+		public System.Collections.Hashtable Namespaces {
 			get { return _Namespaces; }
 			set {
 				if (_Namespaces != value) {
@@ -1509,10 +1508,10 @@ namespace nl.nlsw.Items {
 				}
 			}
 		}
-		
+
 		/// Keep track of the number of ItemObjects written
 		public int ItemCount { get; set; }
-		
+
 		/// Get the Position in the underlying StringBuilder
 		public int Position {
 			get { return GetStringBuilder().Length; }
@@ -1522,7 +1521,7 @@ namespace nl.nlsw.Items {
 		/// Uses the invariant culture, for persistent storage.
 		public Writer() : base(System.Globalization.CultureInfo.InvariantCulture) {
 		}
-		
+
 		/// Initializing constructor
 		/// Uses the invariant culture, for persistent storage.
 		public Writer(IFormatProvider provider) : base(provider) {
@@ -1549,7 +1548,7 @@ namespace nl.nlsw.Items {
 			// clear the buffer
 			sb.Clear();
 		}
-		
+
 		///
 		/// Flushes the contents of the internal string builder to a string,
 		/// and clears the string builder.
@@ -1568,7 +1567,7 @@ namespace nl.nlsw.Items {
 		public virtual string Format(string format, object arg, IFormatProvider formatProvider) {
 			return null;
 		}
-  
+
 		/// IFormatProvider.GetFormat()
 		public virtual object GetFormat(Type formatType) {
 			return this;
@@ -1576,7 +1575,7 @@ namespace nl.nlsw.Items {
 
 		///
 		/// Perform line folding on the (possibly long) line in the string buffer (starting at startIndex),
-		/// by inserting a LineBreak after each section of the line of which the byte representation of the 
+		/// by inserting a LineBreak after each section of the line of which the byte representation of the
 		/// encoding counts OctetsPerLine bytes or less.
 		/// The string buffer is supposed to contain a single line, i.e. any newline characters already present
 		/// are handled as normal characters.
