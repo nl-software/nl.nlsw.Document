@@ -56,10 +56,10 @@ function Get-MimeType {
 <#
 .SYNOPSIS
  Get a file name extension for the specified MIME (content or media) type.
- 
+
 .DESCRIPTION
  The MIME type is 'decoded' to create a file extension from.
- 
+
  @note This function only works for specific use-cases!
  @todo Expand the usability, e.g. a reverse lookup in the registry
 

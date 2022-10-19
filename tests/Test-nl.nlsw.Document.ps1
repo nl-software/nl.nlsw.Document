@@ -1,10 +1,10 @@
 ﻿<#
 .SYNOPSIS
  Test the functionality of the PowerShell module nl.nlsw.Document.
-  
+
 .DESCRIPTION
  Runs functional tests of the functions and classes in the nl.nlsw.Document module.
- 
+
 .PARAMETER Quiet
  No output to the host
 
@@ -26,7 +26,7 @@ using namespace nl.nlsw.Identifiers
 using namespace nl.nlsw.Items
 
 [CmdletBinding()]
-param ( 
+param (
 	[Parameter(Mandatory=$False)]
 	[switch]$Quiet
 )

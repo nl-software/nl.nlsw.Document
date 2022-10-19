@@ -11,17 +11,17 @@ using namespace System.Xml
 <#
 .SYNOPSIS
  Read an RSS/Atom Feed
-  
+
 .DESCRIPTION
  Read an RSS or Atom web feed from the internet.
  The resulting XML document is returned.
-  
+
 .PARAMETER URI
  The URI of the feed.
 
 .INPUTS
  string
- 
+
 .OUTPUTS
  System.Xml.XmlDocument
 
@@ -30,6 +30,7 @@ using namespace System.Xml
 #>
 function Read-Feed {
 	[CmdletBinding()]
+	[OutputType([System.Xml.XmlDocument])]
 	param(
 		[Parameter(Mandatory=$false, Position=0, ValueFromPipeline=$true)]
 		[string]$URI = "https://podcast.npo.nl/feed/bach-van-de-dag.xml"
@@ -63,28 +64,29 @@ function Read-Feed {
 <#
 .SYNOPSIS
  Saves the attachments of an RSS/Atom Feed to a local folder
-  
+
 .DESCRIPTION
  Read an RSS or Atom web feed from the internet.
-  
+
 .PARAMETER Path
  The local folder to save the attachments in.
 
 .INPUTS
  System.Xml.XmlDocument
- 
+
 .OUTPUTS
  System.IO.FileInfo
 
 .LINK
  https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.utility/invoke-webrequest
 #>
-function Save-FeedAttachments {
+function Save-FeedAttachment {
 	[CmdletBinding()]
+	[OutputType([System.IO.FileInfo])]
 	param(
 		[Parameter(Mandatory=$false, Position=0, ValueFromPipeline=$true)]
 		[System.Xml.XmlDocument]$InputObject,
-		
+
 		[Parameter(Mandatory=$false, Position=1)]
 		[string]$Path
 	)
@@ -117,15 +119,15 @@ function Save-FeedAttachments {
 						$fileName = split-path $link -leaf
 					}
 					$stream = $response.GetResponseStream()
-					$reader = [System.IO.StreamReader]::new($stream)
-					
+					#$reader = [System.IO.StreamReader]::new($stream)
+
 					$outFileName = join-path $Path $fileName
-					
+
 					write-verbose "    writing $outFileName"
 					$outstream = [System.IO.File]::OpenWrite($outFileName);
 					$stream.CopyTo($outstream);
 					$outstream.Close();
-					
+
 					get-item $outFileName
 				}
 				$response.Close()

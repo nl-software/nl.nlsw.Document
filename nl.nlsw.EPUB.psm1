@@ -3,22 +3,22 @@
 #
 # @file nl.nlsw.EPUB.psm1
 # @copyright Ernst van der Pols, Licensed under the EUPL-1.2-or-later
-# @date 2020-09-30
+# @date 2022-10-19
 #requires -version 5
 
 <#
 .SYNOPSIS
  Convert an XHTML file to an EPUB 3.1 file.
-  
+
 .DESCRIPTION
  Convert an XHTML webpage to an EPUB3 file, suited for e-Readers.
- 
+
 .PARAMETER inputObject
  The (name of the) file to convert.
 
 .PARAMETER Ext
  The name of the extension of the output file(s).
- 
+
 .NOTES
  @date 2018-10-30
  @author Ernst van der Pols
@@ -26,10 +26,10 @@
 #>
 function ConvertTo-EPUB {
 	[CmdletBinding()]
-	param ( 
+	param (
 		[Parameter(Mandatory=$True, ValueFromPipeline = $True, ValueFromPipelinebyPropertyName = $True, HelpMessage="Enter the name of the file to process")]
-		[object]$inputObject = $(throw "FileName is required."),
-		
+		[object]$inputObject,
+
 		[Parameter(Mandatory=$False)]
 		[string]$Ext = "epub"
 	)
@@ -38,10 +38,10 @@ function ConvertTo-EPUB {
 		# .NET 4.5 required for using ZipFile and friends
 		Add-Type -assembly "System.IO.Compression"
 		Add-Type -assembly "System.IO.Compression.FileSystem"
-		
+
 		#$ZipFile = [System.IO.Compression.ZipFile]::Open("elb.epub.zip", "Read")
 		#$ZipFile.Entries
-		
+
 		<#
 		.SYNOPSIS
 		 Get the title of the specified html:section.
@@ -59,7 +59,7 @@ function ConvertTo-EPUB {
 				return $section.GetAttribute("title")
 			}
 			$titlenode = $section.SelectSingleNode("@title|.//html:h1|.//html:h2|.//html:h3|.//html:h4",$namespaceManager)
-			if (($titlenode -eq $null) -or ($titlenode.InnerText -eq "")) {
+			if (!$titlenode -or ($titlenode.InnerText -eq "")) {
 				return $section.GetAttribute("id")
 			}
 			return $titlenode.InnerText
@@ -95,7 +95,7 @@ function ConvertTo-EPUB {
 
 				[Parameter(Mandatory=$True)]
 				[System.IO.Compression.ZipArchiveEntry]$entry,
-				
+
 				[Parameter(Mandatory=$false)]
 				[string]$mediatype,
 
@@ -117,7 +117,7 @@ function ConvertTo-EPUB {
 				"href"=$entry.FullName;
 				"media-type"=$mediatype
 			})
-			Write-Action "added" $entry.FullName
+			write-verbose ("{0,16} {1}" -f "added",$entry.FullName)
 			return $mitem
 		}
 		<#
@@ -141,14 +141,14 @@ function ConvertTo-EPUB {
 		}
 		<#
 		.SYNOPSIS
-		 Scan one or more XHTML node elements for relative referenced resources, and add those resources 
+		 Scan one or more XHTML node elements for relative referenced resources, and add those resources
 		 to the OPF archive, and register it in the OPF manifest.
 		#>
 		function Add-ReferencedResource {
 			param (
 				[Parameter(Mandatory=$True)]
 				[System.IO.Compression.ZipArchive]$archive,
-				
+
 				[Parameter(Mandatory=$True)]
 				[System.Xml.XmlNode]$manifest,
 
@@ -157,48 +157,52 @@ function ConvertTo-EPUB {
 
 				[Parameter(Mandatory=$True, ValueFromPipeline = $True)]
 				[object]$nodes,		# System.Xml.XmlNodeList or System.Xml.XmlNode
-			
+
 				[Parameter(Mandatory=$True)]
 				[System.Xml.XmlNamespaceManager]$namespaceManager
 			)
-			# attributes that may contain a references resource URI, per html element
-			$htmlUris = @{
-				a="href"; applet="codebase"; area="href"; base="href"; blockquote="cite"; 
-				body="background"; del="cite"; form="action"; head="profile";
-				iframe="longdesc src"; img="longdesc src usemap srcset"; input="src usemap formaction"; ins="cite";
-				link="href"; object="classid codebase data usemap archive"; q="cite"; script="src";
-				audio="src"; button="formaction"; command="icon"; embed="src"; html="manifest";
-				source="src srcset"; track="src"; video="poster src";
-				# @todo meta[refresh].content, svg.image.href
-				# @todo css url()
+			begin {
+				# attributes that may contain a references resource URI, per html element
+				$htmlUris = @{
+					a="href"; applet="codebase"; area="href"; base="href"; blockquote="cite";
+					body="background"; del="cite"; form="action"; head="profile";
+					iframe="longdesc src"; img="longdesc src usemap srcset"; input="src usemap formaction"; ins="cite";
+					link="href"; object="classid codebase data usemap archive"; q="cite"; script="src";
+					audio="src"; button="formaction"; command="icon"; embed="src"; html="manifest";
+					source="src srcset"; track="src"; video="poster src";
+					# @todo meta[refresh].content, svg.image.href
+					# @todo css url()
+				}
 			}
-			foreach ($node in $nodes) {
-				$uriAttrs = $htmlUris[$node.LocalName]
-				if ($uriAttrs -eq $null) { continue }
-				foreach ($attr in $uriAttrs.Split()) {
-					foreach ($href in $node.GetAttribute($attr).Split()) {
-						if ($href -ne "") {
-							try {
-								$uri = new-object System.Uri($href,[System.UriKind]::RelativeOrAbsolute)
-								if (!$uri.IsAbsoluteUri) {
-									$filename = Join-Path $baseFolder $uri
-									$mediatype = Get-MimeType($filename)
-									if ((test-path $filename) -and ($mediatype -in $epub["media-types"])) {
-										$entry = [System.IO.Compression.ZipFileExtensions]::CreateEntryFromFile($archive,$filename,$href)
-										$mitem = Add-ToManifest $manifest $entry -mediatype $mediatype
-										# add additional manifest properties
-										if ($mediatype.StartsWith("image") -and ($node.SelectSingleNode("ancestor::html:section[contains(concat(' ',normalize-space(@epub:type),' '),' cover ')]",$namespaceManager) -ne $null)) {
-											$mitem.SetAttribute("properties", "cover-image")
+			process {
+				foreach ($node in $nodes) {
+					$uriAttrs = $htmlUris[$node.LocalName]
+					if (!$uriAttrs) { continue }
+					foreach ($attr in $uriAttrs.Split()) {
+						foreach ($href in $node.GetAttribute($attr).Split()) {
+							if ($href -ne "") {
+								try {
+									$uri = new-object System.Uri($href,[System.UriKind]::RelativeOrAbsolute)
+									if (!$uri.IsAbsoluteUri) {
+										$filename = Join-Path $baseFolder $uri
+										$mediatype = Get-MimeType($filename)
+										if ((test-path $filename) -and ($mediatype -in $epub["media-types"])) {
+											$entry = [System.IO.Compression.ZipFileExtensions]::CreateEntryFromFile($archive,$filename,$href)
+											$mitem = Add-ToManifest $manifest $entry -mediatype $mediatype
+											# add additional manifest properties
+											if ($mediatype.StartsWith("image") -and $node.SelectSingleNode("ancestor::html:section[contains(concat(' ',normalize-space(@epub:type),' '),' cover ')]",$namespaceManager)) {
+												$mitem.SetAttribute("properties", "cover-image")
+											}
+										}
+										else {
+											write-warning "referenced file ""$filename"" not found or invalid media-type"
 										}
 									}
-									else {
-										write-warning "referenced file ""$filename"" not found or invalid media-type"
-									}
 								}
-							}
-							catch [System.Exception] {
-								write-error "exception while processing resource $($href): $($_.Message)"
-								continue
+								catch [System.Exception] {
+									write-error "exception while processing resource $($href): $($_.Message)"
+									continue
+								}
 							}
 						}
 					}
@@ -218,7 +222,7 @@ function ConvertTo-EPUB {
 			write-error """$($item.Name)"" has an invalid media type: $type "
 			continue
 		}
-		Write-Action "reading" $item.FullName
+		write-verbose ("{0,16} {1}" -f "reading",$item.FullName)
 		try {
 			[System.Xml.XmlDocument]$source = New-Object System.Xml.XmlDocument
 			# keep whitespace
@@ -244,7 +248,7 @@ function ConvertTo-EPUB {
 		}
 		# @note use an absolute path for creating files via .NET processes
 		#$outFileName = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($outFileName)
-		Write-Action "creating" $outFileName
+		write-verbose ("{0,16} {1}" -f "creating",$outFileName)
 
 		try {
 			# create the output zipstream
@@ -256,7 +260,7 @@ function ConvertTo-EPUB {
 			$writer = new-object System.IO.StreamWriter($mimetypeEntry.Open())
 			$writer.Write("application/epub+zip")
 			$writer.Close()
-			Write-Action "added" $mimetypeEntry.FullName
+			write-verbose ("{0,16} {1}" -f "added",$mimetypeEntry.FullName)
 
 			# add the META-INF folder
 			$zipStream.CreateEntry("META-INF/") | out-null
@@ -279,11 +283,11 @@ function ConvertTo-EPUB {
 				"media-type" = "application/oebps-package+xml";
 			})
 			$odc.Save($containerEntry.Open())
-			Write-Action "added" $containerEntry.FullName
+			write-verbose ("{0,16} {1}" -f "added",$containerEntry.FullName)
 
 			# create and add the EPUB package description (content.opf)
 			[System.IO.Compression.ZipArchiveEntry]$contentEntry = $zipStream.CreateEntry("content.opf")
-			Write-Action "creating" $contentEntry.Name
+			write-verbose ("{0,16} {1}" -f "creating",$contentEntry.Name)
 			$opf = New-XmlDocument
 			$nsm = New-XmlNamespaceManager $opf @{ "" = $ns["opf"]; "dc" = $ns["dc"] }
 			$package = Add-XmlElement $opf "" "package" $ns["opf"] ([ordered]@{
@@ -300,16 +304,16 @@ function ConvertTo-EPUB {
 			$manifest = Add-XmlElement $package "" "manifest"  $ns["opf"]
 			$spine = Add-XmlElement $package "" "spine" $ns["opf"]
 
-			Write-Action "collecting" "metadata and manifest entries"
+			write-verbose ("{0,16} {1}" -f "collecting","metadata and manifest entries")
 			# set the dc:title
 			$(Add-XmlElement $metadata "dc" "title" $ns["dc"]).InnerText = $source.html.head.title
-			Write-Action "dc:title" $source.html.head.title
-			
+			write-verbose ("{0,16} {1}" -f "dc:title",$source.html.head.title)
+
 			$headlinks = new-object -type System.Collections.ArrayList
 
 			# copy additional meta data, like dc:creator
 			foreach ($node in $source.html.head.ChildNodes) {
-				# Write-Action "node" ($node.Name + " - " + $node.NamespaceURI)
+				# write-verbose ("{0,16} {1}" -f "node",($node.Name + " - " + $node.NamespaceURI))
 				switch ($node.NamespaceURI) {
 				$ns["dc"] {	# a Dublin Core element is copied
 						$newnode = $opf.ImportNode($node,$true)
@@ -326,14 +330,14 @@ function ConvertTo-EPUB {
 								}
 						}
 						$metadata.AppendChild($newnode) | out-null
-						Write-Action $newnode.Name $newnode.InnerText
+						write-verbose ("{0,16} {1}" -f $newnode.Name,$newnode.InnerText)
 						break
 					}
 				$ns["opf"] {	# an Open Package Format (EPUB) meta element is copied, merging into the default namespace
 						$newnode = $opf.ImportNode($node,$true)
 						$newnode.Prefix = ""
 						$metadata.AppendChild($newnode) | out-null
-						Write-Action $newnode.Name $newnode.InnerText
+						write-verbose ("{0,16} {1}" -f $newnode.Name,$newnode.InnerText)
 						break
 					}
 				$ns["html"] {
@@ -392,12 +396,12 @@ function ConvertTo-EPUB {
 				$sectionId = "{0}-{1}" -f $item.BaseName,$id
 				$sectionFileName = "{0}.xhtml" -f $sectionId
 				$sectionEntry = $zipStream.CreateEntry($sectionFileName)
-				
+
 				[System.Xml.XmlDocument]$sxml = New-XmlDocument
 				# do not auto indent the output
 				$sxml.PreserveWhitespace = $true
 				$snsm = New-XmlNamespaceManager $sxml @{ ""=$ns["html"]; "epub"=$ns["epub"] }
-				
+
 				$html = Add-XmlElement $sxml "" "html" $ns["html"] @{ "xmlns:epub"=$ns["epub"] }
 				$head = Add-XmlElement $html "" "head" $ns["html"]
 				$meta = Add-XmlElement $head "" "meta" $ns["html"] ([ordered]@{ "http-equiv"="Content-Type"; "content"="text/html; charset=utf-8" })
@@ -409,7 +413,7 @@ function ConvertTo-EPUB {
 					$head.AppendChild($xnode) | out-null
 				}
 				$body = Add-XmlElement $html "" "body" $ns["html"]
-				
+
 				# determine section type: leaf or container
 				$childsections = $section.SelectNodes("./html:section[@id]", $sourcensm)
 				if ($childsections.Count -eq 0) {
@@ -444,32 +448,32 @@ function ConvertTo-EPUB {
 					$content = $wrapper
 					$parent = $parent.ParentNode
 				}
-				
+
 				# adjust internal hyperlinks
 				$links = $content.SelectNodes("descendant::html:a[@href]",$sourcensm)
 				foreach ($link in $links) {
 					#$href = new-object System.Uri($link.GetAttribute("href"),[System.Urikind]::RelativeOrAbsolute)
 					if ($link.GetAttribute("href") -match "^#([A-Za-z_].*)") {
-						# lookup the id in the source 
+						# lookup the id in the source
 						$target = $source.SelectSingleNode(("//html:*[@id='{0}']" -f $matches[1]),$sourcensm)
-						if ($target -ne $null) {
+						if ($target) {
 							$targetsection = $target.SelectSingleNode("ancestor-or-self::html:section[@id][1]",$sourcensm)
-							if ($targetsection -ne $null) {
+							if ($targetsection) {
 								$targetsectionUri = "{0}-{1}.xhtml#{2}" -f $item.BaseName,$targetsection.GetAttribute("id"),$matches[1]
 								$link.SetAttribute("href",$targetsectionUri)
 							}
 						}
 					}
 				}
-				
+
 				$body.AppendChild($content) | out-null
 
 				$sxml.Save($sectionEntry.Open())
-				
+
 				# add to manifest
 				$sitem = Add-ToManifest $manifest $sectionEntry -id $id
 				# indicate the (required single) EPUB Navigation Document)
-				if ($section.SelectNodes("descendant::html:nav[@epub:type]",$sourcensm) -ne $null) {
+				if ($section.SelectNodes("descendant::html:nav[@epub:type]",$sourcensm)) {
 					$sitem.SetAttribute("properties","nav")
 				}
 
@@ -478,14 +482,14 @@ function ConvertTo-EPUB {
 			}
 
 			# finally save the content.xml
-			Write-Action "writing" $contentEntry.Name
+			write-verbose ("{0,16} {1}" -f "writing",$contentEntry.Name)
 			$opf.Save($contentEntry.Open())
 		}
 		finally {
 			$zipStream.Dispose()
 			$outStream.Dispose()
 		}
-		Write-Action "ready" $outFileName
+		write-verbose ("{0,16} {1}" -f "ready",$outFileName)
 		$FileCount++
 	}
 

@@ -3,53 +3,33 @@
 #
 # @file nl.nlsw.Process.Utility.psm1
 # @copyright Ernst van der Pols, Licensed under the EUPL-1.2-or-later
-# @date 2020-06-18
+# @date 2022-10-19
 #requires -version 5
 
 <#
 .SYNOPSIS
  Get the architecture of the Windows operating system.
- Returns '32 bits' or '64 bits'
+ Returns '32-bit' or '64-bit'
 #>
 function Get-OSArchitecture {
-	(gwmi -Query "Select OSArchitecture from Win32_OperatingSystem").OSArchitecture
+	return $(if ([System.Environment]::Is64BitOperatingSystem) { "64-bit" } else { "32-bit" })
 }
 
 <#
 .SYNOPSIS
- Shows the .NET assemblies that have been loaded into PowerShell.
+ Get the .NET assemblies (by name) that have been loaded into this PowerShell session.
 #>
-function Show-Assembly {
-	write-host "Loaded .NET assemblies"
-	[appdomain]::currentdomain.getassemblies() | sort -property fullname | format-table fullname | out-host
+function Get-Assembly {
+	[AppDomain]::CurrentDomain.GetAssemblies() | Sort-Object -property FullName | ForEach-Object { $_.FullName }
 }
 
 <#
 .SYNOPSIS
- Shows the loaded PowerShell modules and snap-ins.
+ Get the properties of an object.
 #>
-function Show-Module {
-	write-host "Loaded PowerShell Modules and Snap-Ins"
-	Get-Module | out-host
-	Get-PSSnapin | out-host
-}
-
-<#
-.SYNOPSIS
- Shows the properties of an object.
-#>
-function Show-Object {
+function Get-ObjectProperty {
 	param([object]$object)
-	$object | select-object -property * | out-host
-}
-
-<#
-.SYNOPSIS
- Writes a message to the host, indicating an action that has been or is going to be performed on an object.
-#>
-function Write-Action {
-	param ([string]$action, [object]$object)
-	write-host ("{0,16} {1}" -f $action,$object) -foregroundcolor "Yellow"
+	$object | select-object -property *
 }
 
 Export-ModuleMember -Function *

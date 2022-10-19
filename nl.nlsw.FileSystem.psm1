@@ -89,13 +89,13 @@ class nlswFilesystem {
 
 .INPUT
  System.String
- 
+
 .OUTPUT
  System.String
-
 #>
 function Get-ValidFileName {
 	[CmdletBinding()]
+	[OutputType([System.String])]
 	param (
 		[Parameter(Mandatory=$true, ValueFromPipeline = $true, ValueFromPipelinebyPropertyName = $true)]
 		[string]$Path
@@ -109,7 +109,7 @@ function Get-ValidFileName {
 <#
 .SYNOPSIS
  Create a new unique output file name from the specified path.
- 
+
 .DESCRIPTION
  The input Path is expanded to an absolute path, the directory (folder) is
  created if not already exsiting, and the filename is made unique if
@@ -124,13 +124,20 @@ function Get-ValidFileName {
 .PARAMETER AllowClobber
  Do not change the filename with an incremental index "(<n>)" in case the file already exists.
  When using this switch in a typical application, the existing file will be overwritten.
+
+.INPUT
+ System.String
+
+.OUTPUT
+ System.String
 #>
 function New-IncrementalFileName {
 	[CmdletBinding()]
+	[OutputType([System.String])]
 	param (
 		[Parameter(Mandatory=$true, ValueFromPipeline = $true, ValueFromPipelinebyPropertyName = $true)]
 		[string]$Path,
-		
+
 		[Parameter(Mandatory=$false)]
 		[switch]$AllowClobber
 	)
@@ -183,7 +190,7 @@ function New-TempFolder {
 function Remove-TempFolder {
 	param ([string] $folder)
 	Push-Location $folder
-	Remove-Item '*.*' -Recurse -Force 
+	Remove-Item '*.*' -Recurse -Force
 	Pop-Location
 	Remove-Item $folder
 }
@@ -198,14 +205,14 @@ function Remove-TempFolder {
 
 .PARAMETER Path
  The path name of the item(s) to remove.
- 
+
 .PARAMETER PassThru
  Outputs the FileSystemInfo object of the original item if the file system item has been removed
  to the recycle bin. NOTE that this item is no longer at its original location, so use the object with care.
 
 .INPUTS
  string
- 
+
 .OUTPUTS
  System.IO.FileSystemInfo
 
@@ -218,12 +225,13 @@ function Remove-TempFolder {
 #>
 function Remove-ItemToRecycleBin {
 	[CmdletBinding(SupportsShouldProcess=$true, ConfirmImpact='Medium')]
-	param ( 
+	[OutputType([System.IO.FileSystemInfo])]
+	param (
         [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true, ValueFromPipelineByPropertyName=$true)]
 		[SupportsWildcards()]
 		[ValidateNotNullOrEmpty()]
 		[string[]]$Path,
-		
+
 		[switch]$PassThru
 	)
 	begin {
@@ -237,7 +245,7 @@ function Remove-ItemToRecycleBin {
 			$shellFolder = $shell.Namespace($directoryPath)
 			$shellItem = $shellFolder.ParseName($item.Name)
 			$shellItem.InvokeVerb("delete")
-			
+
 			if ($PassThru -and !(Test-Path $fullpath)) {
 				$item
 			}
@@ -275,13 +283,14 @@ function Remove-ItemToRecycleBin {
 
 .INPUTS
  string
- 
+
 .OUTPUTS
  System.IO.FileInfo
 #>
 function Move-VersionControlledFile {
 	[CmdletBinding()]
-	param ( 
+	[OutputType([System.IO.FileInfo])]
+	param (
         [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)]
 		[SupportsWildcards()]
 		[ValidateNotNullOrEmpty()]
@@ -320,13 +329,13 @@ function Move-VersionControlledFile {
 
 .INPUTS
  string
- 
+
 .OUTPUTS
  bool
 #>
 function Test-VersionControlledFile {
 	[CmdletBinding()]
-	param ( 
+	param (
         [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true, ValueFromPipelineByPropertyName=$true)]
 		[SupportsWildcards()]
 		[ValidateNotNullOrEmpty()]

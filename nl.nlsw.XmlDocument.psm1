@@ -28,14 +28,14 @@ class XmlDoc {
 		"xml",
 		"xhtml"
 	);
-	
+
 	static [string] $nsDublinCore = "http://purl.org/dc/elements/1.1/";
 	static [string] $nsHtml = "http://www.w3.org/1999/xhtml";
 	static [string] $nsOpenDocumentContainer = "urn:oasis:names:tc:opendocument:xmlns:container";
 	static [string] $nsvCard40 = "urn:ietf:params:xml:ns:vcard-4.0";
 	static [string] $nsXlink = "http://www.w3.org/1999/xlink";
 	static [string] $nsXsi = "http://www.w3.org/2001/XMLSchema-instance";
-	
+
 	# namespace prefixes with the corresponding namespace URI
 	static [hashtable] $namespaces = @{
 		"html" = [XmlDoc]::nsHtml;
@@ -49,17 +49,17 @@ class XmlDoc {
 	# static constructor
 	static XmlDoc() {
 	}
-	
+
 	# check if the specified media type is a valid XML MIME type
 	static [bool] IsValidMediaType([string]$mediaType) {
 		return [XmlDoc]::mediaTypes.contains($mediaType);
 	}
-	
+
 	# Set the attributes of the specified element
 	# @note existing attributes are not cleared, but may be overwritten
 	# @param $attributes a hashtable or [ordered] hashtable with the attributes
 	static [void] SetAttributes([System.Xml.XmlElement]$element, [System.Collections.IDictionary]$attributes) {
-		if ($attributes) { 
+		if ($attributes) {
 			foreach ($attr in $attributes.GetEnumerator()) {
 				if ($attr.Key.Contains(':')) {
 					$prefix,$localName = ($attr.Key -split ':')
@@ -94,11 +94,11 @@ class XmlDoc {
 <#
 .SYNOPSIS
  Create a new XmlDocument for UTF-8 output.
-  
+
 .DESCRIPTION
- Creates a new System.Xml.XmlDocument, and adds the XML-declaration 
+ Creates a new System.Xml.XmlDocument, and adds the XML-declaration
  specifying UTF-8 encoding.
- 
+
 .NOTES
  @date 2018-10-30
  @author Ernst van der Pols
@@ -118,15 +118,18 @@ function New-XmlDocument {
 <#
 .SYNOPSIS
  Create a new XmlDocument for UTF-8 output with HTML content.
-  
+
 .DESCRIPTION
- Creates a new System.Xml.XmlDocument, and adds the XML-declaration 
+ Creates a new System.Xml.XmlDocument, and adds the XML-declaration
  specifying UTF-8 encoding.
  In addition the html document node and head and body child elements
  are added. The title element is set in the header.
- 
+
 .PARAMETER title
  The title of the document
+
+.OUTPUTS
+ System.Xml.XmlDocument
 
 .NOTES
  @date 2019-03-18
@@ -135,7 +138,7 @@ function New-XmlDocument {
 #>
 function New-HtmlDocument {
 	[CmdletBinding()]
-	[OutputType([System.Xml.XmlDocument])]	# only for documentation
+	[OutputType([System.Xml.XmlDocument])]
 	param(
 		[string]$title
 	)
@@ -145,8 +148,8 @@ function New-HtmlDocument {
 		$head = $html | Add-HtmlElement "head"
 		if ($title) {
 			$head | Add-HtmlElement "title" $null $title | out-null
-		}		
-		$body = $html | Add-HtmlElement "body"
+		}
+		$html | Add-HtmlElement "body" | out-null
 		return $doc
 	}
 }
@@ -155,23 +158,23 @@ function New-HtmlDocument {
 .SYNOPSIS
  Add a new XmlElement of the HTML language to a specified parent node,
  optionally with the specified attributes.
- 
+
 .DESCRIPTION
  Creates a new System.Xml.XmlElement with the specified LocalName of the
  HTML namespace, appends it to the parent, and sets the attributes.
- 
+
 .PARAMETER parent
  The parent node.
- 
+
 .PARAMETER localName
  The Local Name of the new element.
- 
+
 .PARAMETER attributes
  The (optional) attributes of the new element.
- 
+
 .PARAMETER text
  The (optional) text content of the new element.
- 
+
 .EXAMPLE
 	$img = $p | Add-HtmlElement "img" ([ordered]@{
 		"src"="images/example.jpg";
@@ -196,7 +199,7 @@ function Add-HtmlElement {
 		[Parameter(Mandatory=$false, Position=1, ParameterSetName="Pipe")]
 		#[Parameter(Mandatory=$false, Position=2, ParameterSetName="Pos")]
 		[System.Collections.IDictionary]$attributes = $null,
-		
+
 		[Parameter(Mandatory=$false, Position=2, ParameterSetName="Pipe")]
 		#[Parameter(Mandatory=$false, Position=3, ParameterSetName="Pos")]
 		[string]$text = $null
@@ -209,29 +212,32 @@ function Add-HtmlElement {
 <#
 .SYNOPSIS
  Add a Processing Instruction node to the specified parent node.
- 
+
 .DESCRIPTION
  Creates a new System.Xml.XmlProcessingInstruction with data for the specified target,
  and appends it to the parent.
- 
+
 .PARAMETER parent
  The parent node.
- 
+
 .PARAMETER target
  The name of the processing instruction.
- 
+
 .PARAMETER data
  The data for the processing instruction.
 
 .INPUTS
  System.Xml.Xml The parent node
- 
+
+.OUTPUTS
+ System.Xml.XmlProcessingInstruction
+
 .EXAMPLE
 	$document | Add-XmlProcessingInstruction "xml-stylesheet" "href=`"../xsl/to-html.xsl`" type=`"text/xsl`"' | out-null
 #>
 function Add-XmlProcessingInstruction {
 	[CmdletBinding(DefaultParameterSetName="Pipe")]
-	[OutputType([System.Xml.XmlProcessingInstruction])]	# only for documentation
+	[OutputType([System.Xml.XmlProcessingInstruction])]
 	param (
 		[Parameter(Mandatory=$true, ValueFromPipeline=$true, ParameterSetName="Pipe")]
 		[Parameter(Mandatory=$true, Position=0, ParameterSetName="Pos")]
@@ -248,36 +254,39 @@ function Add-XmlProcessingInstruction {
 	process {
 		$document = if ($parent -is [System.Xml.XmlDocument]) { $parent } else { $parent.OwnerDocument }
 		$child = $parent.AppendChild($document.CreateProcessingInstruction($target,$data))
-		return $child
+		return ($child -as [System.Xml.XmlProcessingInstruction])
 	}
 }
 
 <#
 .SYNOPSIS
  Add a new XmlElement to a specified parent node, optionally with the specified attributes.
- 
+
 .DESCRIPTION
  Creates a new System.Xml.XmlElement with the specified Qualified Name,
  appends it to the parent, and sets the attributes.
- 
+
 .PARAMETER parent
  The parent node.
- 
+
 .PARAMETER prefix
  The namespace prefix of the name of the new element.
- 
+
 .PARAMETER localName
  The Local Name of the new element.
- 
+
 .PARAMETER namespace
  The namespace specifier (URI) of the new element
- 
+
 .PARAMETER attributes
  The (optional) attributes of the new element.
- 
+
 .PARAMETER text
  The (optional) text content of the new element.
- 
+
+.OUTPUTS
+ System.Xml.XmlElement
+
 .EXAMPLE
 	$img = $p | Add-XmlElement "" "img" "http://www.w3.org/1999/xhtml" ([ordered]@{
 		"src"="images/example.jpg";
@@ -290,12 +299,12 @@ function Add-XmlProcessingInstruction {
 #>
 function Add-XmlElement {
 	[CmdletBinding(DefaultParameterSetName="Pipe")]
-	[OutputType([System.Xml.XmlElement])]	# only for documentation
+	[OutputType([System.Xml.XmlElement])]
 	param (
 		[Parameter(Mandatory=$true, ValueFromPipeline=$true, ParameterSetName="Pipe")]
 		[Parameter(Mandatory=$true, Position=0, ParameterSetName="Pos")]
 		[System.Xml.XmlNode]$parent,
-		
+
 		[Parameter(Mandatory=$true, Position=0, ParameterSetName="Pipe")]
 		[Parameter(Mandatory=$true, Position=1, ParameterSetName="Pos")]
 		[AllowEmptyString()]
@@ -331,24 +340,27 @@ function Add-XmlElement {
 		if ($text) {
 			$child.InnerText = $text
 		}
-		return $child
+		return ($child -as [System.Xml.XmlElement])
 	}
 }
 
 <#
 .SYNOPSIS
  Add an XmlText node to the specified parent node.
- 
+
 .DESCRIPTION
  Creates a new System.Xml.XmlText with the specified text,
  and appends it to the parent.
- 
+
 .PARAMETER parent
  The parent node.
- 
+
 .PARAMETER text
  The text string.
- 
+
+.OUTPUTS
+ System.Xml.XmlText
+
 .EXAMPLE
  Add a new html:img to a html:p, with html as default namespace. Use an ordered hashtable to control the
  order of the attributes in the output.
@@ -356,7 +368,7 @@ function Add-XmlElement {
 #>
 function Add-XmlText {
 	[CmdletBinding(DefaultParameterSetName="Pipe")]
-	[OutputType([System.Xml.XmlText])]	# only for documentation
+	[OutputType([System.Xml.XmlText])]
 	param (
 		[Parameter(Mandatory=$true, ValueFromPipeline=$true, ParameterSetName="Pipe")]
 		[Parameter(Mandatory=$true, Position=0, ParameterSetName="Pos")]
@@ -370,7 +382,7 @@ function Add-XmlText {
 	process {
 		$document = if ($parent -is [System.Xml.XmlDocument]) { $parent } else { $parent.OwnerDocument }
 		$child = $parent.AppendChild($document.CreateTextNode($text))
-		return $child
+		return ($child -as [System.Xml.XmlText])
 	}
 }
 
@@ -402,7 +414,7 @@ function Get-HtmlBody {
 #>
 function Get-HtmlHead {
 	[CmdletBinding()]
-	[OutputType([System.Xml.XmlElement])]	# only for documentation
+	[OutputType([System.Xml.XmlElement])]
 	param (
 		[Parameter(Mandatory=$true, ValueFromPipeline=$true)]
 		[System.Xml.XmlDocument]$document
@@ -416,9 +428,9 @@ function Get-HtmlHead {
 .SYNOPSIS
  Get a hashtable with a list of well-known XML namespaces and prefixes.
 #>
-function Get-XmlNamespaces {
+function Get-XmlNamespace {
 	[CmdletBinding()]
-	[OutputType([System.Collections.Hashtable])]	# only for documentation
+	[OutputType([System.Collections.Hashtable])]
 	param (
 	)
 	process {
@@ -429,20 +441,27 @@ function Get-XmlNamespaces {
 <#
 .SYNOPSIS
  Create a new XmlNamespaceManager for the XmlDocument, and register the specified namespaces.
- 
+
 .DESCRIPTION
  An XmlNamespaceManager is required when performing XPath-queries with SelectNodes()
  or SelectSingleNode() on an XmlDocument.
- 
+
  Note: do not forget to specify the default namespace of the document with an explicit prefix for usage
  in these XPath-queries. No prefix means a non-namespace XML-node in this case.
 
 .PARAMETER xmldoc
  The XmlDocument to associate the namespacemanager with.
- 
+
 .PARAMETER namespaces
  The namespaces to add to the manager.
- 
+
+.OUTPUTS
+ System.Xml.XmlNamespaceManager
+
+.NOTES
+ The single XmlNamespaceManager is returned in an array wrapper to compensate
+ PowerShell's container enumeration feature.
+
 .EXAMPLE
 	$sourcensm = New-XmlNamespaceManager $source @{
 		"html" = "http://www.w3.org/1999/xhtml";
@@ -451,7 +470,7 @@ function Get-XmlNamespaces {
 #>
 function New-XmlNamespaceManager {
 	[CmdletBinding()]
-	[OutputType([System.Xml.XmlNamespaceManager])]	# only for documentation
+	[OutputType([System.Xml.XmlNamespaceManager])]
 	param (
 		[Parameter(Mandatory=$true, ValueFromPipeline=$true)]
 		[System.Xml.XmlDocument]$xmldoc,
@@ -466,7 +485,7 @@ function New-XmlNamespaceManager {
 				$nsm.AddNamespace($ns.Key, $ns.Value)
 			}
 		}
-		return ,$nsm	# wrap in array to return the complete container
+		Write-Output $nsm -NoEnumerate
 	}
 }
 

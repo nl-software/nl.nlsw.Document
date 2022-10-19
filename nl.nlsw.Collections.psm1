@@ -3,7 +3,7 @@
 #
 # @file nl.nlsw.Collections.psm1
 # @copyright Ernst van der Pols, Licensed under the EUPL-1.2-or-later
-# @date 2022-08-08
+# @date 2022-10-18
 #requires -version 3
 
 class nlswCollections {
@@ -64,6 +64,12 @@ class nlswCollections {
  Convert an array of hashtables into a single hashtable. The value
  of an entry will be made an array, if multiple values are present.
 
+.INPUT
+ System.Collections.Hashtable[]
+
+.OUTPUT
+ System.Collections.Hashtable
+
 .LINK
  https://devblogs.microsoft.com/scripting/dealing-with-powershell-hash-table-quirks/
 
@@ -72,6 +78,7 @@ class nlswCollections {
 #>
 function ConvertFrom-HashtableArray {
 	[CmdletBinding()]
+	[OutputType([System.Collections.Hashtable])]
 	param (
 		[Parameter(Mandatory=$true, ValueFromPipeline=$true)]
 		[hashtable[]]$hashtables
@@ -158,7 +165,7 @@ function ConvertTo-OrderedDictionary {
 	param (
 		[Parameter(Mandatory=$true, ValueFromPipeline=$true)]
 		[object]$InputObject,
-		
+
 		[Parameter(Mandatory=$false)]
 		[switch]$Recurse,
 
