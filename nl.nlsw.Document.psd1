@@ -11,7 +11,7 @@
 	# RootModule = ".\nl.nlsw.Document.psm1"
 
 	# Version number of this module.
-	ModuleVersion = "1.0.2.0"
+	ModuleVersion = "1.0.4"
 
 	# Supported PSEditions
 	# CompatiblePSEditions = @()
@@ -70,24 +70,28 @@
 		".\nl.nlsw.Document.psm1",
 		".\nl.nlsw.EPUB.psm1",
 		".\nl.nlsw.Feed.psm1",
+		".\nl.nlsw.JSON.psm1",
 		".\nl.nlsw.FileSystem.psm1",
 		".\nl.nlsw.Ini.psm1",
 		".\nl.nlsw.Items.psm1"
 		".\nl.nlsw.Process.Utility.psm1",
+		".\nl.nlsw.SQLite.psm1"
 		".\nl.nlsw.XmlDocument.psm1"
 	)
 
 	# Functions to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no functions to export.
 	FunctionsToExport = @(
-		"ConvertFrom-HashtableArray",
+		"ConvertFrom-HashtableArray","ConvertTo-OrderedDictionary",
 		"Get-MimeType","Get-ExtensionFromMimeType","Expand-ItemObjectMacros",
 		"New-XmlDocument", "Add-XmlElement", "Add-XmlProcessingInstruction", "Add-XmlText",
 		"New-XmlNamespaceManager",
 		"Add-HtmlElement","New-HtmlDocument","Get-HtmlBody","Get-HtmlHead","Get-XmlNamespaces",
-		"New-IncrementalFileName","New-TempFolder","Remove-TempFolder","Remove-ItemToRecycleBin",
+		"Get-ValidFileName","Move-VersionControlledFile","New-IncrementalFileName","New-TempFolder","Remove-TempFolder","Remove-ItemToRecycleBin","Test-VersionControlledFile"
 		"Get-OSArchitecture", "Show-Assembly","Show-Module","Show-Object","Write-Action",
 		"Export-Ini","Import-Ini",
 		"ConvertTo-EPUB",
+		"ConvertTo-FormattedJson",
+		"Get-SQLiteDataSet","Invoke-SQLiteCommand",
 		"Read-Feed","Save-FeedAttachments"
 	)
 
@@ -115,6 +119,7 @@
 		".\nl.nlsw.Collections.psm1",
 		".\nl.nlsw.Document.psm1",
 		".\nl.nlsw.EPUB.psm1",
+		".\nl.nlsw.JSON.psm1",
 		".\nl.nlsw.Feed.psm1",
 		".\nl.nlsw.FileSystem.psm1",
 		".\nl.nlsw.Ini.psm1",
@@ -129,7 +134,7 @@
 		PSData = @{
 	
 			# Tags applied to this module. These help with module discovery in online galleries.
-			Tags = @('file','document','items','identifiers')
+			Tags = @('file','document','items','identifiers','PSEdition_Desktop')
 	
 			# A URL to the license for this module.
 			LicenseUri = 'https://spdx.org/licenses/EUPL-1.2.html'
