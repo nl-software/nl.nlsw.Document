@@ -9,17 +9,17 @@
 <#
 .SYNOPSIS
  Expand macros in a string with properties of the specified ItemObject.
- 
+
 .DESCRIPTION
  The macro syntax is:
 		'{' [<pre> '<'] <key> ['>' <post>] ['|' <empty>] '}'
- 
+
  with
 	<pre>	text to put in front of the macro value if the value is not empty
 	<key>	the macro identifier
 	<post>	text to put after the macro value if the value is not empty
 	<empty>	text to output if the macro value is empty
-	
+
  Available macro key values (case insensitive):
  - NAME		replaced by the name of the ItemObject
  - ID		replaced by the identifier of the ItemObject
@@ -31,12 +31,16 @@
 .PARAMETER Text
  The string to replace macros in. May be piped.
 
-.NOTES
- @author Ernst van der Pols
- @language PowerShell 5
+.INPUTS
+ System.String
+
+.OUTPUTS
+ System.String
 #>
-function Expand-ItemObjectMacros {
+function Expand-ItemObjectMacro {
 	[CmdletBinding()]
+	[System.Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'item', Justification="false positive")]
+	[OutputType([System.String])]
 	param (
 		[Parameter(Mandatory=$true)]
 		[nl.nlsw.Items.ItemObject]$item,

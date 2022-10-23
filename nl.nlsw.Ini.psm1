@@ -120,7 +120,7 @@ function Import-Ini {
 				$ini[$section][';CommentCount'] = $CommentCount
 			}
 		}
-		
+
         Write-Verbose "$($MyInvocation.MyCommand.Name)::  imported $($ini.Keys.Count) ini sections"
         return $ini
     }
@@ -185,9 +185,9 @@ function Import-Ini {
 	Saves the content of the $IniVar Hashtable to the INI File c:\myinifile.ini and saves the file into $file
 
 .EXAMPLE
-	$Category1 = @{“Key1”=”Value1”;”Key2”=”Value2”}
-	$Category2 = @{“Key1”=”Value1”;”Key2”=”Value2”}
-	$NewINIContent = @{“Category1”=$Category1;”Category2”=$Category2}
+	$Category1 = @{"Key1"="Value1";"Key2"="Value2"}
+	$Category2 = @{"Key1"="Value1";"Key2"="Value2"}
+	$NewINIContent = @{"Category1"=$Category1;"Category2"=$Category2}
 	Export-Ini -InputObject $NewINIContent -Path "C:\MyNewFile.INI"
 	-----------
 	Description
@@ -197,14 +197,13 @@ function Import-Ini {
 	Import-Ini
 
 .LINK
-	https://gallery.technet.microsoft.com/7d7c867f-026e-4620-bf32-eca99b4e42f4
+	https://github.com/lipkau/PsIni
 
 .NOTES
 	Author        : Oliver Lipkau <oliver@lipkau.net>
 	Blog        : http://oliver.lipkau.net/blog/
 	Original : Out-IniFile
 	Source        : https://github.com/lipkau/PsIni
-				  http://gallery.technet.microsoft.com/scriptcenter/ea40c1ef-c856-434b-b8fb-ebd7a76e8d91
 	Version        : 1.0 - 2010/03/12 - Initial release
 				  1.1 - 2012/04/19 - Bugfix/Added example to help (Thx Ingmar Verheij)
 				  1.2 - 2014/12/11 - Improved handling for missing output file (Thx SLDR)
@@ -213,6 +212,7 @@ function Import-Ini {
 #>
 function Export-Ini {
     [CmdletBinding()]
+	[OutputType([System.IO.FileSystemInfo])]
     param(
         [switch]$Append,
 

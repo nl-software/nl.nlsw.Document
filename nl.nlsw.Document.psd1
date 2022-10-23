@@ -1,6 +1,6 @@
-﻿#	_  _ ____ _ _ _ _    _ ____ ____    ____ ____ ____ ___ _ _ _ ____ ____ ____ 
-#	|\ | |___ | | | |    | |___ |___    [__  |  | |___  |  | | | |__| |__/ |___ 
-#	| \| |___ |_|_| |___ | |    |___    ___] |__| |     |  |_|_| |  | |  \ |___ 
+﻿#	_  _ ____ _ _ _ _    _ ____ ____    ____ ____ ____ ___ _ _ _ ____ ____ ____
+#	|\ | |___ | | | |    | |___ |___    [__  |  | |___  |  | | | |__| |__/ |___
+#	| \| |___ |_|_| |___ | |    |___    ___] |__| |     |  |_|_| |  | |  \ |___
 #
 # @file nl.nlsw.Document.psd1
 #
@@ -11,7 +11,7 @@
 	# RootModule = ".\nl.nlsw.Document.psm1"
 
 	# Version number of this module.
-	ModuleVersion = "1.0.3.0"
+	ModuleVersion = "1.1.0"
 
 	# Supported PSEditions
 	# CompatiblePSEditions = @()
@@ -70,25 +70,27 @@
 		".\nl.nlsw.Document.psm1",
 		".\nl.nlsw.EPUB.psm1",
 		".\nl.nlsw.Feed.psm1",
+		".\nl.nlsw.JSON.psm1",
 		".\nl.nlsw.FileSystem.psm1",
 		".\nl.nlsw.Ini.psm1",
 		".\nl.nlsw.Items.psm1"
-		".\nl.nlsw.Process.Utility.psm1",
+		".\nl.nlsw.SQLite.psm1"
 		".\nl.nlsw.XmlDocument.psm1"
 	)
 
 	# Functions to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no functions to export.
 	FunctionsToExport = @(
-		"ConvertFrom-HashtableArray",
-		"Get-MimeType","Get-ExtensionFromMimeType","Expand-ItemObjectMacros",
+		"ConvertFrom-HashtableArray","ConvertTo-OrderedDictionary",
+		"Get-MimeType","Get-ExtensionFromMimeType","Expand-ItemObjectMacro",
 		"New-XmlDocument", "Add-XmlElement", "Add-XmlProcessingInstruction", "Add-XmlText",
 		"New-XmlNamespaceManager",
-		"Add-HtmlElement","New-HtmlDocument","Get-HtmlBody","Get-HtmlHead","Get-XmlNamespaces",
-		"New-IncrementalFileName","New-TempFolder","Remove-TempFolder","Remove-ItemToRecycleBin",
-		"Get-OSArchitecture", "Show-Assembly","Show-Module","Show-Object","Write-Action",
+		"Add-HtmlElement","New-HtmlDocument","Get-HtmlBody","Get-HtmlHead","Get-XmlNamespace",
+		"Get-ValidFileName","Move-VersionControlledFile","New-IncrementalFileName","New-TempFolder","Remove-TempFolder","Remove-ItemToRecycleBin","Test-VersionControlledFile"
 		"Export-Ini","Import-Ini",
 		"ConvertTo-EPUB",
-		"Read-Feed","Save-FeedAttachments"
+		"ConvertTo-FormattedJson",
+		"Get-SQLiteDataSet","Invoke-SQLiteCommand",
+		"Read-Feed","Save-FeedAttachment"
 	)
 
 	# Cmdlets to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no cmdlets to export.
@@ -108,6 +110,8 @@
 
 	# List of all files packaged with this module
 	FileList=@(
+		".\bin\Debug\netstandard2.0\nl.nlsw.Document.dll",
+		".\en\about_nl.nlsw.Document.help.txt",
 		".\source\nl.nlsw.Document.cs",
 		".\source\nl.nlsw.Identifiers.cs",
 		".\source\nl.nlsw.Items.cs",
@@ -115,36 +119,36 @@
 		".\nl.nlsw.Collections.psm1",
 		".\nl.nlsw.Document.psm1",
 		".\nl.nlsw.EPUB.psm1",
+		".\nl.nlsw.JSON.psm1",
 		".\nl.nlsw.Feed.psm1",
 		".\nl.nlsw.FileSystem.psm1",
 		".\nl.nlsw.Ini.psm1",
 		".\nl.nlsw.Items.psm1",
-		".\nl.nlsw.Process.Utility.psm1",
 		".\nl.nlsw.XmlDocument.psm1"
 	)
 
 	# Private data to pass to the module specified in RootModule/ModuleToProcess. This may also contain a PSData hashtable with additional module metadata used by PowerShell.
 	PrivateData = @{
-	
+
 		PSData = @{
-	
+
 			# Tags applied to this module. These help with module discovery in online galleries.
-			Tags = @('file','document','items','identifiers')
-	
+			Tags = @('Document','ItemObject','ItemList','ItemStack','Property','Attributes','CompoundProperty','Reader','Writer','URI', 'EPUB', 'PSEdition_Desktop')
+
 			# A URL to the license for this module.
 			LicenseUri = 'https://spdx.org/licenses/EUPL-1.2.html'
-	
+
 			# A URL to the main website for this project.
 			ProjectUri = 'https://github.com/nl-software/nl.nlsw.Document'
-	
+
 			# A URL to an icon representing this module.
 			# IconUri = ''
-	
+
 			# ReleaseNotes of this module
 			# ReleaseNotes = ''
-	
+
 		} # End of PSData hashtable
-	
+
 	} # End of PrivateData hashtable
 
 	# HelpInfo URI of this module

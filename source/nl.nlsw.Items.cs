@@ -17,7 +17,7 @@ using System.Xml;
 /// Base classes for collections of items with attributes properties.
 ///
 /// @author Ernst van der Pols
-/// @date 2022-04-19
+/// @date 2022-10-22
 /// @requires .NET Framework 4.5
 ///
 namespace nl.nlsw.Items {
@@ -650,6 +650,27 @@ namespace nl.nlsw.Items {
 		}
 	}
 
+	/// Extension methods on standard .NET classes
+	public static class Extensions {
+		
+		/// Return the substring after the specified search string.
+		///
+		/// - If the value of `value` or `search` is the empty sequence, it is interpreted as the zero-length string.
+		/// - If the value of `search` is the zero-length string, then the function returns the value of `value`.
+		/// - If the value of `value` does not contain a string that is equal to the value of `search`, then the function returns the zero-length string.
+		/// - The function returns the substring of the value of `value` that follows in the value of `value` the first occurrence of `search`.
+		/// @param value the string to get a substring of
+		/// @param search the string to search as prefix of the part to return
+		/// @see https://www.w3.org/TR/xpath-functions-31/#func-substring-after
+		public static string SubstringAfter(this string value, string search) {
+			if (!string.IsNullOrEmpty(value) && !string.IsNullOrEmpty(search)) {
+				int position = value.IndexOf(search);
+				return (position < 0) ? string.Empty : value.Substring(position + search.Length);
+			}
+			return value;
+		}
+	}
+
 	///
 	/// A keyed collection of ItemObjects.
 	///
@@ -1085,7 +1106,7 @@ namespace nl.nlsw.Items {
 	}
 
 	/// Base class for reading ItemObjects from a stream
-	public class Reader {
+	public class Reader : System.IDisposable {
 		/// declare the stack used during parsing (nested)  items
 		private ItemStack _ItemStack = new nl.nlsw.Items.ItemStack();
 		/// the default encoding of the source text
@@ -1094,6 +1115,8 @@ namespace nl.nlsw.Items {
 		private System.Text.StringBuilder _ContentLine = new System.Text.StringBuilder();
 		/// the buffer for lines to process when no format is known yet
 		private List<string> _LineCache;
+        /// Track whether Dispose has been called.
+        private bool _Disposed = false;
 
 		/// Buffer for unfolding the current content line
 		public System.Text.StringBuilder ContentLine {
@@ -1197,6 +1220,38 @@ namespace nl.nlsw.Items {
 		/// Initializing constructor
 		public Reader(System.Text.Encoding defaultEncoding = null) {
 			_DefaultEncoding = defaultEncoding ?? System.Text.Encoding.UTF8;
+		}
+
+		/// Implementation of IDisposable
+		public void Dispose() {
+			Dispose(true);
+			// This object will be cleaned up by the Dispose method.
+			// Therefore, you should call GC.SuppressFinalize to
+			// take this object off the finalization queue
+			// and prevent finalization code for this object
+			// from executing a second time.
+			GC.SuppressFinalize(this);
+		}
+
+		/// Dispose(bool disposing) executes in two distinct scenarios.
+		/// If disposing equals true, the method has been called directly
+		/// or indirectly by a user's code. Managed and unmanaged resources
+		/// can be disposed.
+		/// If disposing equals false, the method has been called by the
+		/// runtime from inside the finalizer and you should not reference
+		/// other objects. Only unmanaged resources can be disposed.
+		protected virtual void Dispose(bool disposing) {
+			if (!this._Disposed) {
+				if (disposing) {
+					// clean up managed resources
+					if (TextReader != null) {
+						TextReader.Dispose();
+						TextReader = null;
+					}
+					FileInfo = null;
+				}
+				this._Disposed = true;
+			}
 		}
 
 		///
