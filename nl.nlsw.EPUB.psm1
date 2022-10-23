@@ -146,19 +146,19 @@ function ConvertTo-EPUB {
 		#>
 		function Add-ReferencedResource {
 			param (
-				[Parameter(Mandatory=$True)]
+				[Parameter(Mandatory=$True, Position=0)]
 				[System.IO.Compression.ZipArchive]$archive,
 
-				[Parameter(Mandatory=$True)]
+				[Parameter(Mandatory=$True, Position=1)]
 				[System.Xml.XmlNode]$manifest,
 
-				[Parameter(Mandatory=$True)]
+				[Parameter(Mandatory=$True, Position=2)]
 				[string]$baseFolder,
 
-				[Parameter(Mandatory=$True, ValueFromPipeline = $True)]
+				[Parameter(Mandatory=$True, Position=3, ValueFromPipeline = $True)]
 				[object]$nodes,		# System.Xml.XmlNodeList or System.Xml.XmlNode
 
-				[Parameter(Mandatory=$True)]
+				[Parameter(Mandatory=$True, Position=4)]
 				[System.Xml.XmlNamespaceManager]$namespaceManager
 			)
 			begin {
@@ -275,13 +275,14 @@ function ConvertTo-EPUB {
 			#</container>
 			#[System.Xml.XmlDocument]
 			$odc = New-XmlDocument
-			$nsm = New-XmlNamespaceManager $odc @{ "" = $ns["odc"] }
+			New-XmlNamespaceManager $odc @{ "" = $ns["odc"] } | out-null
+			# @todo use $nsm?
 			$odContainer = Add-XmlElement $odc "" "container" $ns["odc"] @{ "version"="1.0" }
 			$rootFiles = Add-XmlElement $odContainer "" "rootfiles" $ns["odc"]
-			$rootFile = Add-XmlElement $rootFiles "" "rootfile" $ns["odc"] ([ordered]@{
+			Add-XmlElement $rootFiles "" "rootfile" $ns["odc"] ([ordered]@{
 				"full-path"="content.opf";
 				"media-type" = "application/oebps-package+xml";
-			})
+			}) | out-null
 			$odc.Save($containerEntry.Open())
 			write-verbose ("{0,16} {1}" -f "added",$containerEntry.FullName)
 
@@ -289,7 +290,7 @@ function ConvertTo-EPUB {
 			[System.IO.Compression.ZipArchiveEntry]$contentEntry = $zipStream.CreateEntry("content.opf")
 			write-verbose ("{0,16} {1}" -f "creating",$contentEntry.Name)
 			$opf = New-XmlDocument
-			$nsm = New-XmlNamespaceManager $opf @{ "" = $ns["opf"]; "dc" = $ns["dc"] }
+			New-XmlNamespaceManager $opf @{ "" = $ns["opf"]; "dc" = $ns["dc"] } | out-null
 			$package = Add-XmlElement $opf "" "package" $ns["opf"] ([ordered]@{
 				"version"=$epub["version"];
 				"xml:lang"=$epub["xml:lang"]
@@ -344,7 +345,7 @@ function ConvertTo-EPUB {
 						switch ($node.LocalName) {
 						"style" {
 								if ($node.GetAttribute("href") -ne "") {
-									Add-ReferencedResource $zipStream $manifest $item.Directory $node $sourcensm
+									Add-ReferencedResource -archive $zipStream -manifest $manifest -baseFolder $item.Directory -nodes $node -namespaceManager $sourcensm
 									$headlinks.Add($node) | out-null
 								}
 								elseif ($node.GetAttribute("type") -eq "text/css") {
@@ -358,7 +359,7 @@ function ConvertTo-EPUB {
 									$writer.Write($cssdata)
 									$writer.Close()
 									$stylecss = Add-ToManifest $manifest $styleEntry
-
+									$stylecss | out-null
 									$link = $node.OwnerDocument.CreateElement("","link", $ns["html"])
 									$link.SetAttribute("rel", "stylesheet") | out-null
 									$link.SetAttribute("type", "text/css") | out-null
@@ -368,7 +369,7 @@ function ConvertTo-EPUB {
 								break
 							}
 						"link" {
-								Add-ReferencedResource $zipStream $manifest $item.Directory $node $sourcensm
+								Add-ReferencedResource -archive $zipStream -manifest $manifest -baseFolder $item.Directory -nodes $node -namespaceManager $sourcensm
 								$headlinks.Add($node) | out-null
 								break
 							}
@@ -381,7 +382,7 @@ function ConvertTo-EPUB {
 
 			# look for local external files referenced from the source to include in the EPUB package
 			$links = $source.html.body.SelectNodes(".//html:img", $sourcensm)
-			Add-ReferencedResource $zipStream $manifest $item.Directory $links $sourcensm
+			Add-ReferencedResource -archive $zipStream -manifest $manifest -baseFolder $item.Directory -nodes $links -namespaceManager $sourcensm
 
 			# sectionize the document: create a file per section
 			# a section may be a section container, in which case only header and footer are written and a reference list to the contained sections
@@ -401,10 +402,12 @@ function ConvertTo-EPUB {
 				# do not auto indent the output
 				$sxml.PreserveWhitespace = $true
 				$snsm = New-XmlNamespaceManager $sxml @{ ""=$ns["html"]; "epub"=$ns["epub"] }
-
+				# @todo use $snsm?
+				$snsm | out-null
 				$html = Add-XmlElement $sxml "" "html" $ns["html"] @{ "xmlns:epub"=$ns["epub"] }
 				$head = Add-XmlElement $html "" "head" $ns["html"]
 				$meta = Add-XmlElement $head "" "meta" $ns["html"] ([ordered]@{ "http-equiv"="Content-Type"; "content"="text/html; charset=utf-8" })
+				$meta | out-null
 				$title = Add-XmlElement $head "" "title" $ns["html"]
 				$title.InnerText = Get-SectionTitle $section $sourcensm
 				# include links and style-links in the head

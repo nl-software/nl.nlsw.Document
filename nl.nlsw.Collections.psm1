@@ -162,6 +162,8 @@ function ConvertFrom-HashtableArray {
 #>
 function ConvertTo-OrderedDictionary {
 	[CmdletBinding()]
+	[System.Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'Recurse', Justification="false positive")]
+	[System.Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'Sort', Justification="false positive")]
 	param (
 		[Parameter(Mandatory=$true, ValueFromPipeline=$true)]
 		[object]$InputObject,

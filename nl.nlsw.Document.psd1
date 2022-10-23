@@ -11,7 +11,7 @@
 	# RootModule = ".\nl.nlsw.Document.psm1"
 
 	# Version number of this module.
-	ModuleVersion = "1.0.3.0"
+	ModuleVersion = "1.1.0"
 
 	# Supported PSEditions
 	# CompatiblePSEditions = @()
@@ -74,7 +74,6 @@
 		".\nl.nlsw.FileSystem.psm1",
 		".\nl.nlsw.Ini.psm1",
 		".\nl.nlsw.Items.psm1"
-		".\nl.nlsw.Process.Utility.psm1",
 		".\nl.nlsw.SQLite.psm1"
 		".\nl.nlsw.XmlDocument.psm1"
 	)
@@ -87,7 +86,6 @@
 		"New-XmlNamespaceManager",
 		"Add-HtmlElement","New-HtmlDocument","Get-HtmlBody","Get-HtmlHead","Get-XmlNamespace",
 		"Get-ValidFileName","Move-VersionControlledFile","New-IncrementalFileName","New-TempFolder","Remove-TempFolder","Remove-ItemToRecycleBin","Test-VersionControlledFile"
-		"Get-OSArchitecture", "Get-Assembly","Get-ObjectProperty",
 		"Export-Ini","Import-Ini",
 		"ConvertTo-EPUB",
 		"ConvertTo-FormattedJson",
@@ -112,6 +110,7 @@
 
 	# List of all files packaged with this module
 	FileList=@(
+		".\bin\Debug\netstandard2.0\nl.nlsw.Document.dll",
 		".\en\about_nl.nlsw.Document.help.txt",
 		".\source\nl.nlsw.Document.cs",
 		".\source\nl.nlsw.Identifiers.cs",
@@ -125,7 +124,6 @@
 		".\nl.nlsw.FileSystem.psm1",
 		".\nl.nlsw.Ini.psm1",
 		".\nl.nlsw.Items.psm1",
-		".\nl.nlsw.Process.Utility.psm1",
 		".\nl.nlsw.XmlDocument.psm1"
 	)
 
@@ -135,7 +133,7 @@
 		PSData = @{
 
 			# Tags applied to this module. These help with module discovery in online galleries.
-			Tags = @('file','document','items','identifiers', 'PSEdition_Desktop')
+			Tags = @('Document','ItemObject','ItemList','ItemStack','Property','Attributes','CompoundProperty','Reader','Writer','URI', 'EPUB', 'PSEdition_Desktop')
 
 			# A URL to the license for this module.
 			LicenseUri = 'https://spdx.org/licenses/EUPL-1.2.html'

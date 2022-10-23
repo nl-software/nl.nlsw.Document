@@ -2,6 +2,16 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <PackageId>nl.nlsw.Document.net</PackageId>
+    <Version>1.1.0</Version>
+    <Authors>Ernst van der Pols</Authors>
+    <Copyright>(c) Ernst van der Pols. All rights reserved.</Copyright>
+    <Company>NewLife Software</Company>
+    <Product>nl.nlsw.Document</Product>
+    <Title>Classes to support specific document type processing by PowerShell modules.</Title>
+    <PackageDescription>A .NET utility package for processing documents.</PackageDescription>
+    <PackageTags>ItemObject;ItemList;ItemStack;Property;Attributes;CompoundProperty;Reader;Writer;URI</PackageTags>
+    <PackageLicenseExpression>EUPL-1.2</PackageLicenseExpression>
   </PropertyGroup>
 
 </Project>

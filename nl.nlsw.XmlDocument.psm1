@@ -102,11 +102,11 @@ class XmlDoc {
 .NOTES
  @date 2018-10-30
  @author Ernst van der Pols
- @language PowerShell 3
 #>
 function New-XmlDocument {
 	[CmdletBinding()]
-	[OutputType([System.Xml.XmlDocument])]	# only for documentation
+	[System.Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseShouldProcessForStateChangingFunctions', '', Justification="ConfirmImpact=None")]
+	[OutputType([System.Xml.XmlDocument])]
 	param()
 	process {
 		$doc = New-Object System.Xml.XmlDocument
@@ -138,6 +138,7 @@ function New-XmlDocument {
 #>
 function New-HtmlDocument {
 	[CmdletBinding()]
+	[System.Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseShouldProcessForStateChangingFunctions', '', Justification="ConfirmImpact=None")]
 	[OutputType([System.Xml.XmlDocument])]
 	param(
 		[string]$title
@@ -470,6 +471,7 @@ function Get-XmlNamespace {
 #>
 function New-XmlNamespaceManager {
 	[CmdletBinding()]
+	[System.Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseShouldProcessForStateChangingFunctions', '', Justification="ConfirmImpact=None")]
 	[OutputType([System.Xml.XmlNamespaceManager])]
 	param (
 		[Parameter(Mandatory=$true, ValueFromPipeline=$true)]

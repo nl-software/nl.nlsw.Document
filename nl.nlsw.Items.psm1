@@ -39,6 +39,7 @@
 #>
 function Expand-ItemObjectMacro {
 	[CmdletBinding()]
+	[System.Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'item', Justification="false positive")]
 	[OutputType([System.String])]
 	param (
 		[Parameter(Mandatory=$true)]

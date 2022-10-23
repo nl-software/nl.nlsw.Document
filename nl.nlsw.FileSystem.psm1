@@ -3,7 +3,7 @@
 #
 # @file nl.nlsw.FileSystem.psm1
 # @copyright Ernst van der Pols, Licensed under the EUPL-1.2-or-later
-# @date 2022-09-08
+# @date 2022-10-21
 #requires -version 5
 
 class nlswFilesystem {
@@ -132,7 +132,7 @@ function Get-ValidFileName {
  System.String
 #>
 function New-IncrementalFileName {
-	[CmdletBinding()]
+	[CmdletBinding(SupportsShouldProcess=$true, ConfirmImpact='Low')]
 	[OutputType([System.String])]
 	param (
 		[Parameter(Mandatory=$true, ValueFromPipeline = $true, ValueFromPipelinebyPropertyName = $true)]
@@ -144,40 +144,60 @@ function New-IncrementalFileName {
 	begin {
 	}
 	process {
-		# convert any (range of) invalid filename characters to '_'
-		# and determine absolute path, to avoid difference between Environment.CurrentDirectory i.s.o. $pwd
-		$filepath = [System.IO.Path]::GetFullPath([System.IO.Path]::Combine($(Get-Location),[nlswFilesystem]::GetValidFileName($Path)))
-		# create folder, if non-existing
-		$filefolder = [System.IO.Path]::GetDirectoryName($filepath)
-		if (!(test-path $filefolder)) {
-			new-item -path $filefolder -itemtype Directory | out-null
+		if ($PSCmdlet.ShouldProcess($Path)) {
+			# convert any (range of) invalid filename characters to '_'
+			# and determine absolute path, to avoid difference between Environment.CurrentDirectory i.s.o. $pwd
+			$filepath = [System.IO.Path]::GetFullPath([System.IO.Path]::Combine($(Get-Location),[nlswFilesystem]::GetValidFileName($Path)))
+			# create folder, if non-existing
+			$filefolder = [System.IO.Path]::GetDirectoryName($filepath)
+			if (!(test-path $filefolder)) {
+				new-item -path $filefolder -itemtype Directory | out-null
+			}
+			# make output file unique with "(n)" extension
+			if ((test-path $filepath) -and !$AllowClobber) {
+				$name = [System.IO.Path]::GetFileNameWithoutExtension($filepath)
+				$ext = [System.IO.Path]::GetExtension($filepath)
+				$i = 0;
+				do {
+					$i++
+					$filepath = [System.IO.Path]::Combine($filefolder,"$name($i)$ext")
+				} while (test-path $filepath)
+			}
+			return $filepath
 		}
-		# make output file unique with "(n)" extension
-		if ((test-path $filepath) -and !$AllowClobber) {
-			$name = [System.IO.Path]::GetFileNameWithoutExtension($filepath)
-			$ext = [System.IO.Path]::GetExtension($filepath)
-			$i = 0;
-			do {
-				$i++
-				$filepath = [System.IO.Path]::Combine($filefolder,"$name($i)$ext")
-			} while (test-path $filepath)
-		}
-		return $filepath
 	}
 }
 
 <#
 .SYNOPSIS
- Create a new folder in the specified base folder.
+ Create a new (temporary) folder in the specified base folder.
 
 .DESCRIPTION
  The new folder has a GUID as name.
+
+.PARAMETER Path
+ The filesystem path name of the directory to create a temporary folder in.
+
+.INPUTS
+ System.String
+
+.OUTPUTS
+ System.IO.DirectoryInfo
 #>
 function New-TempFolder {
-	param ([string] $base = ".")
-	$Guid = [System.Guid]::NewGuid().ToString()
-	$TempFolder = $(Join-Path $base $Guid)
-	return New-Item -Type Directory -Path $TempFolder
+	[CmdletBinding(SupportsShouldProcess=$true, ConfirmImpact='Low')]
+	[OutputType([System.IO.DirectoryInfo])]
+	param (
+        [Parameter(Mandatory=$false, ValueFromPipeline=$true, ValueFromPipelineByPropertyName=$true)]
+		[string]$Path = "."
+	)
+	process {
+		if ($PSCmdlet.ShouldProcess($Path)) {
+			$Guid = [System.Guid]::NewGuid().ToString()
+			$TempFolder = $(Join-Path $Path $Guid)
+			return New-Item -Type Directory -Path $TempFolder
+		}
+	}
 }
 
 <#
@@ -185,14 +205,30 @@ function New-TempFolder {
  Remove the specified folder.
 
 .DESCRIPTION
- The folder was created with New-TempFolder.
+ Removes a (temporary) folder, created with New-TempFolder.
+ Note that current implementation will remove any specified folder, and any files
+ or subfolders it contains.
+
+.PARAMETER Path
+ The filesystem path name of the directory to remove.
+
+.INPUTS
+ System.String
 #>
 function Remove-TempFolder {
-	param ([string] $folder)
-	Push-Location $folder
-	Remove-Item '*.*' -Recurse -Force
-	Pop-Location
-	Remove-Item $folder
+	[CmdletBinding(SupportsShouldProcess=$true, ConfirmImpact='Medium')]
+	param (
+        [Parameter(Mandatory=$false, ValueFromPipeline=$true, ValueFromPipelineByPropertyName=$true)]
+		[string]$Path
+	)
+	process {
+		if ($PSCmdlet.ShouldProcess($Path)) {
+			Push-Location $Path
+			Remove-Item '*.*' -Recurse -Force
+			Pop-Location
+			Remove-Item $Path
+		}
+	}
 }
 
 <#
@@ -211,7 +247,7 @@ function Remove-TempFolder {
  to the recycle bin. NOTE that this item is no longer at its original location, so use the object with care.
 
 .INPUTS
- string
+ System.String[]
 
 .OUTPUTS
  System.IO.FileSystemInfo
@@ -225,6 +261,7 @@ function Remove-TempFolder {
 #>
 function Remove-ItemToRecycleBin {
 	[CmdletBinding(SupportsShouldProcess=$true, ConfirmImpact='Medium')]
+	[System.Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'PassThru', Justification="false positive")]
 	[OutputType([System.IO.FileSystemInfo])]
 	param (
         [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true, ValueFromPipelineByPropertyName=$true)]
@@ -232,22 +269,25 @@ function Remove-ItemToRecycleBin {
 		[ValidateNotNullOrEmpty()]
 		[string[]]$Path,
 
+		[Parameter(Mandatory=$false)]
 		[switch]$PassThru
 	)
 	begin {
 		$shell = new-object -comobject "Shell.Application"
 	}
 	process {
-		if ($PSCmdlet.ShouldProcess($Path)) {
-			$item = Get-Item $Path -ErrorAction "Stop"
-			$fullpath = $item.FullName
-			$directoryPath = Split-Path $item -Parent
-			$shellFolder = $shell.Namespace($directoryPath)
-			$shellItem = $shellFolder.ParseName($item.Name)
-			$shellItem.InvokeVerb("delete")
+		$Path | Get-Item -ErrorAction "Stop" | foreach-object {
+			$item = $_
+			if ($PSCmdlet.ShouldProcess($item)) {
+				$fullpath = $item.FullName
+				$directoryPath = Split-Path $item -Parent
+				$shellFolder = $shell.Namespace($directoryPath)
+				$shellItem = $shellFolder.ParseName($item.Name)
+				$shellItem.InvokeVerb("delete")
 
-			if ($PassThru -and !(Test-Path $fullpath)) {
-				$item
+				if ($PassThru -and !(Test-Path $fullpath)) {
+					$item
+				}
 			}
 		}
 	}
@@ -289,6 +329,7 @@ function Remove-ItemToRecycleBin {
 #>
 function Move-VersionControlledFile {
 	[CmdletBinding()]
+	[System.Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'Destination', Justification="false positive")]
 	[OutputType([System.IO.FileInfo])]
 	param (
         [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)]
@@ -328,7 +369,7 @@ function Move-VersionControlledFile {
  The path name of the file to test.
 
 .INPUTS
- string
+ System.String[]
 
 .OUTPUTS
  bool
@@ -339,7 +380,7 @@ function Test-VersionControlledFile {
         [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true, ValueFromPipelineByPropertyName=$true)]
 		[SupportsWildcards()]
 		[ValidateNotNullOrEmpty()]
-		[string]$Path
+		[string[]]$Path
 	)
 	begin {
 	}
