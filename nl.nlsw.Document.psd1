@@ -29,7 +29,7 @@
 	Copyright = "(c) Ernst van der Pols. All rights reserved."
 
 	# Description of the functionality provided by this module
-	Description = "A PowerShell utility module for processing documents."
+	Description = "A PowerShell/.NET utility package for processing documents."
 
 	# Minimum version of the Windows PowerShell engine required by this module
 	PowerShellVersion = "5.1"
@@ -66,16 +66,16 @@
 
 	# Modules to import as nested modules of the module specified in RootModule/ModuleToProcess
 	NestedModules = @(
-		".\nl.nlsw.Collections.psm1",
-		".\nl.nlsw.Document.psm1",
-		".\nl.nlsw.EPUB.psm1",
-		".\nl.nlsw.Feed.psm1",
-		".\nl.nlsw.JSON.psm1",
-		".\nl.nlsw.FileSystem.psm1",
-		".\nl.nlsw.Ini.psm1",
-		".\nl.nlsw.Items.psm1"
-		".\nl.nlsw.SQLite.psm1"
-		".\nl.nlsw.XmlDocument.psm1"
+		"./nl.nlsw.Collections.psm1",
+		"./nl.nlsw.Document.psm1",
+		"./nl.nlsw.EPUB.psm1",
+		"./nl.nlsw.Feed.psm1",
+		"./nl.nlsw.JSON.psm1",
+		"./nl.nlsw.FileSystem.psm1",
+		"./nl.nlsw.Ini.psm1",
+		"./nl.nlsw.Items.psm1"
+		"./nl.nlsw.SQLite.psm1"
+		"./nl.nlsw.XmlDocument.psm1"
 	)
 
 	# Functions to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no functions to export.
@@ -110,21 +110,21 @@
 
 	# List of all files packaged with this module
 	FileList=@(
-		".\bin\Debug\netstandard2.0\nl.nlsw.Document.dll",
-		".\en\about_nl.nlsw.Document.help.txt",
-		".\source\nl.nlsw.Document.cs",
-		".\source\nl.nlsw.Identifiers.cs",
-		".\source\nl.nlsw.Items.cs",
-		".\tests\Test-nl.nlsw.Document.ps1",
-		".\nl.nlsw.Collections.psm1",
-		".\nl.nlsw.Document.psm1",
-		".\nl.nlsw.EPUB.psm1",
-		".\nl.nlsw.JSON.psm1",
-		".\nl.nlsw.Feed.psm1",
-		".\nl.nlsw.FileSystem.psm1",
-		".\nl.nlsw.Ini.psm1",
-		".\nl.nlsw.Items.psm1",
-		".\nl.nlsw.XmlDocument.psm1"
+		"./en/about_nl.nlsw.Document.help.txt",
+		"./lib/netstandard2.0/nl.nlsw.Document.dll",
+		"./source/nl.nlsw.Document.cs",
+		"./source/nl.nlsw.Identifiers.cs",
+		"./source/nl.nlsw.Items.cs",
+		"./tests/Test-nl.nlsw.Document.ps1",
+		"./nl.nlsw.Collections.psm1",
+		"./nl.nlsw.Document.psm1",
+		"./nl.nlsw.EPUB.psm1",
+		"./nl.nlsw.JSON.psm1",
+		"./nl.nlsw.Feed.psm1",
+		"./nl.nlsw.FileSystem.psm1",
+		"./nl.nlsw.Ini.psm1",
+		"./nl.nlsw.Items.psm1",
+		"./nl.nlsw.XmlDocument.psm1"
 	)
 
 	# Private data to pass to the module specified in RootModule/ModuleToProcess. This may also contain a PSData hashtable with additional module metadata used by PowerShell.
