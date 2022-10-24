@@ -7,21 +7,24 @@
 
 # Import the nl.nlsw.Document, nl.nlsw.identifiers, and nl.nlsw.Items .NET classes.
 #
-if ((test-path "$PSScriptRoot\bin\Debug\netstandard2.0\nl.nlsw.Document.dll")) {
+$assembly = "$PSScriptRoot/lib/netstandard2.0/nl.nlsw.Document.dll"
+if ((test-path $assembly)) {
 	# import the library
-	Add-Type -Path "$PSScriptRoot\bin\Debug\netstandard2.0\nl.nlsw.Document.dll"
+	Add-Type -Path $assembly
 }
 else {
-	if (!(test-path "$PSScriptRoot\nl.nlsw.Document.dll")) {
+	# create the assembly from source
+	$assembly = "$PSScriptRoot/nl.nlsw.Document.dll"
+	if (!(test-path $assembly)) {
 		# compile the C# types to a DLL library
-		Add-Type -Path "$PSScriptRoot\source\nl.nlsw.Document.cs",`
-			"$PSScriptRoot\source\nl.nlsw.Identifiers.cs",`
-			"$PSScriptRoot\source\nl.nlsw.Items.cs" `
+		Add-Type -Path "$PSScriptRoot/source/nl.nlsw.Document.cs",`
+			"$PSScriptRoot/source/nl.nlsw.Identifiers.cs",`
+			"$PSScriptRoot/source/nl.nlsw.Items.cs" `
 			-ReferencedAssemblies "System.Xml.dll" `
-			-OutputAssembly "$PSScriptRoot\nl.nlsw.Document.dll" -OutputType Library
+			-OutputAssembly $assembly -OutputType Library
 	}
 	# import the library
-	Add-Type -Path "$PSScriptRoot\nl.nlsw.Document.dll"
+	Add-Type -Path $assembly
 }
 
 <#
