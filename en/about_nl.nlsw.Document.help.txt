@@ -34,6 +34,14 @@ LONG DESCRIPTION
     - nl.nlsw.Identifiers
       Classes that represent various Uniform Resource Identifiers (URIs).
 
+    - nl.nlsw.Excel
+      Functions to read Microsoft Excel documents, using Excel or the
+      ExcelDataReader library.
+
+    - nl.nlsw.SQLite
+      Functions for SQLite database access using the System.Data.SQLite library.
+
+
 SEE ALSO
     http://www.nlsw.nl
 

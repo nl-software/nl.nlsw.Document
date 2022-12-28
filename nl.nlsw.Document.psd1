@@ -11,10 +11,10 @@
 	# RootModule = ".\nl.nlsw.Document.psm1"
 
 	# Version number of this module.
-	ModuleVersion = "1.1.0"
+	ModuleVersion = "1.1.1"
 
 	# Supported PSEditions
-	# CompatiblePSEditions = @()
+	# CompatiblePSEditions = @('Desktop')
 
 	# ID used to uniquely identify this module
 	GUID = "4f293aa5-d703-4ec6-bae7-16730a415dae"
@@ -29,7 +29,7 @@
 	Copyright = "(c) Ernst van der Pols. All rights reserved."
 
 	# Description of the functionality provided by this module
-	Description = "A PowerShell/.NET utility package for processing documents."
+	Description = "A PowerShell/.NET package for processing documents."
 
 	# Minimum version of the Windows PowerShell engine required by this module
 	PowerShellVersion = "5.1"
@@ -69,6 +69,7 @@
 		"./nl.nlsw.Collections.psm1",
 		"./nl.nlsw.Document.psm1",
 		"./nl.nlsw.EPUB.psm1",
+		"./nl.nlsw.Excel.psm1",
 		"./nl.nlsw.Feed.psm1",
 		"./nl.nlsw.JSON.psm1",
 		"./nl.nlsw.FileSystem.psm1",
@@ -88,6 +89,7 @@
 		"Get-ValidFileName","Move-VersionControlledFile","New-IncrementalFileName","New-TempFolder","Remove-TempFolder","Remove-ItemToRecycleBin","Test-VersionControlledFile"
 		"Export-Ini","Import-Ini",
 		"ConvertTo-EPUB",
+		"Get-ExcelData", "Get-ExcelDataTable", "Import-ExcelDataSet",
 		"ConvertTo-FormattedJson",
 		"Get-SQLiteDataSet","Invoke-SQLiteCommand",
 		"Read-Feed","Save-FeedAttachment"
@@ -112,19 +114,23 @@
 	FileList=@(
 		"./en/about_nl.nlsw.Document.help.txt",
 		"./lib/netstandard2.0/nl.nlsw.Document.dll",
+		"./media/nl.nlsw.Document.png",
 		"./source/nl.nlsw.Document.cs",
 		"./source/nl.nlsw.Identifiers.cs",
 		"./source/nl.nlsw.Items.cs",
 		"./tests/Test-nl.nlsw.Document.ps1",
+		"./CHANGELOG.md",
 		"./nl.nlsw.Collections.psm1",
 		"./nl.nlsw.Document.psm1",
 		"./nl.nlsw.EPUB.psm1",
+		"./nl.nlsw.Excel.psm1",
 		"./nl.nlsw.JSON.psm1",
 		"./nl.nlsw.Feed.psm1",
 		"./nl.nlsw.FileSystem.psm1",
 		"./nl.nlsw.Ini.psm1",
 		"./nl.nlsw.Items.psm1",
-		"./nl.nlsw.XmlDocument.psm1"
+		"./nl.nlsw.XmlDocument.psm1",
+		"./readme.md"
 	)
 
 	# Private data to pass to the module specified in RootModule/ModuleToProcess. This may also contain a PSData hashtable with additional module metadata used by PowerShell.
@@ -133,7 +139,12 @@
 		PSData = @{
 
 			# Tags applied to this module. These help with module discovery in online galleries.
-			Tags = @('Document','ItemObject','ItemList','ItemStack','Property','Attributes','CompoundProperty','Reader','Writer','URI', 'EPUB', 'PSEdition_Desktop')
+			Tags = @('PSEdition_Desktop',
+				'Document','ItemObject','ItemList','ItemStack','Property','Attributes','CompoundProperty','Reader','Writer','URI', 'EPUB', 'Excel', 'XML', 'HTML'
+			)
+
+			# NuGet-4.9.0++ prefers 'license' over 'licenseUrl'; not supported in PowerShell psd yet. SPDX identifier or path to license file in the package.
+			license = 'EUPL-1.2'
 
 			# A URL to the license for this module.
 			LicenseUri = 'https://spdx.org/licenses/EUPL-1.2.html'
@@ -141,8 +152,16 @@
 			# A URL to the main website for this project.
 			ProjectUri = 'https://github.com/nl-software/nl.nlsw.Document'
 
+			# NuGet-5.3.0++ prefers 'icon' over 'iconUrl'; not supported in PowerShell psd yet.
+			# Path to icon file in the package, JPG or PNG, 128x128 pixels.
+			icon = 'media/nl.nlsw.Document.png'
+
 			# A URL to an icon representing this module.
-			# IconUri = ''
+			IconUri = 'https://github.com/nl-software/nl.nlsw.Document/raw/trunk/media/nl.nlsw.Document.png'
+
+			# NuGet-5.10.0++ supports 'readme'; not supported in PowerShell psd yet.
+			# Path to readme file in the package, Markdown (.md).
+			readme = 'readme.md'
 
 			# ReleaseNotes of this module
 			# ReleaseNotes = ''
@@ -155,5 +174,6 @@
 	# HelpInfoUri = "http://www.nlsw.nl/?item=software"
 
 	# Default prefix for commands exported from this module. Override the default prefix using Import-Module -Prefix.
-	# DefaultCommandPrefix = ''
+	# The default value is not recommended due to various issues, but the value specified is a suggested value when needed on import.
+	# DefaultCommandPrefix = 'nlsw'
 }
