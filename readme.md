@@ -9,12 +9,13 @@ The module includes the following submodules:
 
 - *nl.nlsw.Document* - A .NET *utility* class and PowerShell *utility* module.
 - *nl.nlsw.EPUB* - Functions to produce EPUB documents.
+- *nl.nlsw.Excel* - Functions to read Microsoft Excel documents.
 - *nl.nlsw.Feed* - Functions to read Atom or RSS web feed documents.
 - *nl.nlsw.FileSystem* - PowerShell utility functions for file and filesytem operations.
 - *nl.nlsw.Items* - Classes and functions process generalized ItemObject documents.
 - *nl.nlsw.Identifiers* - Classes that represent various Uniform Resource Identifiers (URIs).
 - *nl.nlsw.JSON* - Functions for JSON processing.
-- *nl.nlsw.SQLite* - Functions for SQLite access via [System.Data.SQLite](https://system.data.sqlite.org/).
+- *nl.nlsw.SQLite* - Functions for SQLite database access via [System.Data.SQLite](https://system.data.sqlite.org/).
 - *nl.nlsw.XmlDocument* - Functions for constructing, and updating XmlDocument objects.
 
 ## Installation
@@ -49,7 +50,7 @@ Get-Help about_nl.nlsw.Document
 
 ## Downloading the Source Code
 
-You can just clone the repository:
+You can clone the repository:
 
 ```sh
 git clone https://github.com/nl-software/nl.nlsw.Document.git
@@ -65,6 +66,10 @@ For running the unit test of the module, you require:
 Install-Module -Name nl.nlsw.TestSuite -Scope CurrentUser
 ```
 
+- The nl.nlsw.Excel module requires the `ExcelDataReader.dll`.
+  The module will automatically install the *ExcelDataReader*
+  library package in the user environment, when needed.
+
 - The nl.nlsw.SQLite module requires the `System.Data.SQLite.dll`.
   The module will automatically install the *System.Data.SQLite .NET Standard 2.0*
   library package in the user environment, when needed.
@@ -76,7 +81,8 @@ This module can be used in two ways:
 - as (Windows) PowerShell module, using the .NET Framework 4.8 C# compiler
   - the C# files are therefore resticted to C# 5
 
-- as PowerShell / C# package compiled with the latest .NET SDK
+- as PowerShell / C# package compiled with the latest .NET SDK.
+  A **NETstandard2.0** assembly is included.
 
 ## Legal and Licensing
 

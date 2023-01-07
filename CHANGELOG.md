@@ -1,6 +1,12 @@
 ﻿# nl.nlsw.Document changelog
 
-## Release nl.nlsw.Document-1.1.0
+## Release nl.nlsw.Document-1.1.1
+
+### Added
+- nl.nlsw.Excel for access to Excel documents
+- nl.nlsw.Document.png icon
+
+## Release 2022-10-24 nl.nlsw.Document-1.1.0
 
 ### Changed
 - Version number conform [Semantic Versioning 2.0.0]. However,
