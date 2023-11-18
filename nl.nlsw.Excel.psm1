@@ -2,17 +2,22 @@
 #	| \| |=== |/\| |___ | |--- |===   ==== [__] |---  |  |/\| |--| |--< |===
 #
 # @file nl.nlsw.Excel.psm1
-# @date 2022-12-16
+# @date 2023-11-14
 #requires -version 5
 
 class Excel {
+	# https://www.nuget.org/packages/ExcelDataReader.DataSet
+	static [string] $DataSetPackage = "ExcelDataReader.DataSet"
+	static [string] $DataSetVersion = "3.6"
 	# https://www.nuget.org/packages/ExcelDataReader
 	static [string] $DataReaderPackage = "ExcelDataReader"
+	static [string] $DataReaderVersion = "3.6"
 
 	# static constructor
 	static Excel() {
 		# run this only once
-		[Excel]::Install([Excel]::DataReaderPackage)
+		[Excel]::Install([Excel]::DataReaderPackage,[Excel]::DataReaderVersion)
+		[Excel]::Install([Excel]::DataSetPackage,[Excel]::DataSetVersion)
 	}
 
 	# Function with dummy behavior that can be called to trigger
@@ -22,31 +27,10 @@ class Excel {
 
 	# Make sure the .NET Standard 2.0 library of the specified package is loaded
 	# @param $packageName the name of the package
+	# @param $packageVersion the required version of the package
 	# @see https://stackoverflow.com/questions/39257572/loading-assemblies-from-nuget-packages
-	static [void] Install([string]$packageName) {
-		# First check if the NuGet package provider is available
-		$nugetPP = Get-PackageProvider "NuGet" -ErrorAction SilentlyContinue
-		if (!$nugetPP) {
-			write-verbose ("{0,16} {1}" -f "installing","NuGet Package Provider for CurrentUser")
-			# install the NuGet package provider for the current user
-			Install-PackageProvider "NuGet" -verbose -Scope CurrentUser
-			# register the NuGet package source
-			Register-PackageSource -ProviderName NuGet -Name nuget.org -Location "https://www.nuget.org/api/v2"
-		}
-		# Second, check the presence of the package
-		$package = Get-Package $packageName -ErrorAction SilentlyContinue
-		if (!$package) {
-			write-verbose ("{0,16} {1}" -f "installing",$packageName)
-			# install the package
-			Install-Package -Name $packageName -ProviderName "NuGet" -Scope CurrentUser -SkipDependencies
-			# get the installed package
-			$package = Get-Package $packageName
-		}
-		# Get the NetStandard2.0 dll
-		$packageFile = get-item $package.Source
-		$packageDll = get-item (Join-Path $packageFile.DirectoryName "lib/netstandard2.0/$packageName.dll")
-		write-verbose ("{0,16} {1}" -f "loading",$packageDll)
-		Add-Type -Path $packageDll
+	static [void] Install([string]$packageName,[string]$packageVersion) {
+		Import-DotNetLibrary $packageName -RequiredVersion $packageVersion -SkipDependencies
 	}
 }
 
@@ -147,7 +131,7 @@ function Get-ExcelData {
 						$item.Add($header[$col - 1],$cell)
 					}
 					write-verbose ("{0,16} {1}" -f $row,$item.Name)
-					[psobject]$item
+					write-output [psobject]$item
 					if ([string]::IsNullOrEmpty($item[$header[0]])) {
 						# empty line (first column): end of data
 						break
@@ -262,7 +246,7 @@ function Get-ExcelDataTable {
 			}
 
 			# Return the results as an array
-			return ,$DataTable
+			Write-Output $DataTable -NoEnumerate
 		}
 
 		# Run the code in a 32bit job, since the provider is 32bit only
@@ -283,7 +267,7 @@ function Get-ExcelDataTable {
  
  Note that you do not need to have Microsoft Excel installed.
  
- Note currently ExcelDataReader version 2 is used. Upgrade to version 3 is pending.
+ Note currently ExcelDataReader version 3 is used.
  
 .PARAMETER Path
  The file name of the Excel file(s) to import. May contain wildcards,
@@ -303,8 +287,7 @@ function Get-ExcelDataTable {
  https://github.com/ExcelDataReader/ExcelDataReader
 
 .LINK
- https://www.nuget.org/packages/ExcelDataReader
-
+ https://www.nuget.org/packages/ExcelDataReader.DataSet
 #>
 function Import-ExcelDataSet {
 	[CmdletBinding()]
@@ -326,19 +309,35 @@ function Import-ExcelDataSet {
 			$dataset = $null
 			write-verbose ("{0,16} {1}" -f "reading",$file.FullName)
 			try {
+				# create the reader
 				if ($file.Extension -eq ".xls") {
-					$ExcelReader = [Excel.ExcelReaderFactory]::CreateBinaryReader($file.OpenRead());
+					$ExcelReader = [ExcelDataReader.ExcelReaderFactory]::CreateBinaryReader($file.OpenRead());
 				}
 				elseif ($file.Extension -in @(".xlsx", ".xlsm")) {
-					$ExcelReader = [Excel.ExcelReaderFactory]::CreateOpenXmlReader($file.OpenRead());
+					$ExcelReader = [ExcelDataReader.ExcelReaderFactory]::CreateOpenXmlReader($file.OpenRead());
 				}
 				else {
 					write-error ("unsupported file extension of file '{0}'" -f $file.FullName)
 					return
 				}
-
-				$ExcelReader.IsFirstRowAsColumnNames = $IsFirstRowAsColumnNames;
-				$dataset = $ExcelReader.AsDataSet();
+				
+				# all tables have a row header (or not), and if so, only include columns with a column name (trimming of excess Excel)
+				$dataTableConfiguration = [ExcelDataReader.ExcelDataTableConfiguration]::new();
+				$dataTableConfiguration.UseHeaderRow = $IsFirstRowAsColumnNames
+				if ($IsFirstRowAsColumnNames) {
+					$dataTableConfiguration.FilterColumn = {
+						param([ExcelDataReader.IExcelDataReader]$reader,[int]$columnOrdinal)
+						# check if a column name is present, if so, include this column and return true
+						return !$reader.IsDBNull($columnOrdinal)
+					}
+				}
+				$excelDataSetConfig = [ExcelDataReader.ExcelDataSetConfiguration]::new();
+				$excelDataSetConfig.ConfigureDataTable = {
+					param([ExcelDataReader.IExcelDataReader]$reader)
+					return $dataTableConfiguration
+				}
+				# note that in PowerShell you must call extension methods as static method.
+				$dataset = [ExcelDataReader.ExcelDataReaderExtensions]::AsDataSet($ExcelReader, $excelDataSetConfig);
 				$ExcelReader.Close();
 			}
 			catch {
@@ -351,7 +350,7 @@ function Import-ExcelDataSet {
 				}
 			}
 			# Return the results as a set
-			return ,$dataset
+			Write-Output $dataset -NoEnumerate
 		}
 	}
 	end {

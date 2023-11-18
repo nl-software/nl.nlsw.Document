@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <PackageId>nl.nlsw.Document.net</PackageId>
-    <Version>1.1.0</Version>
+    <Version>1.2.0</Version>
     <Authors>Ernst van der Pols</Authors>
     <Copyright>(c) Ernst van der Pols. All rights reserved.</Copyright>
     <Company>NewLife Software</Company>

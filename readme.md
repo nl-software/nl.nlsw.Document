@@ -66,7 +66,8 @@ For running the unit test of the module, you require:
 Install-Module -Name nl.nlsw.TestSuite -Scope CurrentUser
 ```
 
-- The nl.nlsw.Excel module requires the `ExcelDataReader.dll`.
+- The nl.nlsw.Excel module requires the `ExcelDataReader.dll`
+  and the `ExcelDataReader.DataSet.dll`.
   The module will automatically install the *ExcelDataReader*
   library package in the user environment, when needed.
 
@@ -78,8 +79,7 @@ Install-Module -Name nl.nlsw.TestSuite -Scope CurrentUser
 
 This module can be used in two ways:
 
-- as (Windows) PowerShell module, using the .NET Framework 4.8 C# compiler
-  - the C# files are therefore resticted to C# 5
+- as (Windows) PowerShell module.
 
 - as PowerShell / C# package compiled with the latest .NET SDK.
   A **NETstandard2.0** assembly is included.

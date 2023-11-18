@@ -3,15 +3,15 @@
 #
 # @file nl.nlsw.FileSystem.psm1
 # @copyright Ernst van der Pols, Licensed under the EUPL-1.2-or-later
-# @date 2022-10-21
+# @date 2023-11-08
 #requires -version 5
 
 class nlswFilesystem {
 
 	# convert any (range of) invalid path characters to '_'
-	static $invalidPathCharRegEx = [regex]"[$([string]([System.IO.Path]::GetInvalidPathChars()))\*\?]+"
+	static $invalidPathCharRegEx = [regex]"[$([string]::new([System.IO.Path]::GetInvalidPathChars()))\*\?]+"
 	# convert any (range of) invalid filename characters to '_'
-	static $invalidFileCharRegEx = [regex]"[$([string]([System.IO.Path]::GetInvalidFileNameChars()))\*\?]+"
+	static $invalidFileCharRegEx = [regex]"[$([string]::new([System.IO.Path]::GetInvalidFileNameChars()))\*\?]+"
 
 	# Replace any (range of) invalid filename characters with an underscore to get a valid filename.
 	# @param $filename the filename to validate
@@ -156,6 +156,7 @@ function New-IncrementalFileName {
 			# make output file unique with "(n)" extension
 			if ((test-path $filepath) -and !$AllowClobber) {
 				$name = [System.IO.Path]::GetFileNameWithoutExtension($filepath)
+				$name = $name -replace "\(\d*\)$",""
 				$ext = [System.IO.Path]::GetExtension($filepath)
 				$i = 0;
 				do {

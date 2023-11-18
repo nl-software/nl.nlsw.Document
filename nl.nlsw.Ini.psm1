@@ -3,7 +3,7 @@
 #
 # @file nl.nlsw.Ini.psm1
 # @copyright Ernst van der Pols, Licensed under the EUPL-1.2-or-later
-# @date 2021-09-30
+# @date 2023-03-29
 #requires -version 3
 
 <#
@@ -56,27 +56,25 @@
 	Version : 1.0 - 2010/03/12 - Initial release
 			  1.1 - 2014/12/11 - Typo (Thx SLDR)
 								 Typo (Thx Dave Stiff)
-
-	#Requires -Version 2.0
 #>
 function Import-Ini {
-    [CmdletBinding()]
-    param(
-        [ValidateNotNullOrEmpty()]
-        #[ValidateScript({(Test-Path $_) -and ((Get-Item $_).Extension -eq ".ini")})]
-        [Parameter(ValueFromPipeline=$True,Mandatory=$True)]
-        [string]$Path
-    )
-    begin {
+	[CmdletBinding()]
+	param(
+		[ValidateNotNullOrEmpty()]
+		#[ValidateScript({(Test-Path $_) -and ((Get-Item $_).Extension -eq ".ini")})]
+		[Parameter(ValueFromPipeline=$True,Mandatory=$True)]
+		[string]$Path
+	)
+	begin {
 	}
-    process {
-        Write-Verbose "$($MyInvocation.MyCommand.Name):: importing $Path"
+	process {
+		Write-Verbose "$($MyInvocation.MyCommand.Name):: importing $Path"
 
-        $ini = [ordered]@{}
-        switch -regex -file $Path
-        {
-            "^\[(.+)\]$" # Section
-            {
+		$ini = [ordered]@{}
+		switch -regex -file $Path
+		{
+			"^\[(?<section>.+)\]$" # Section
+			{
 				if ($section)
 				{
 					if ($CommentCount -gt 0)
@@ -84,35 +82,34 @@ function Import-Ini {
 						$ini[$section][';CommentCount'] = $CommentCount
 					}
 				}
-                $section = $matches[1]
-                $ini[$section] = [ordered]@{}
-                $CommentCount = 0
-            }
-            "^;(.*)$" # Comment
-            {
-                if (!($section))
-                {
-                    $section = "No-Section"
-                    $ini[$section] = [ordered]@{}
-                    $CommentCount = 0
-                }
-                $value = $matches[1]
-                $CommentCount = $CommentCount + 1
-                $name = ";Comment" + $CommentCount
-                $ini[$section][$name] = $value
-            }
-            "(.+?)\s*=\s*(.*)" # Key
-            {
-                if (!($section))
-                {
-                    $section = "No-Section"
-                    $ini[$section] = [ordered]@{}
-                    $CommentCount = 0
-                }
-                $name,$value = $matches[1..2]
-                $ini[$section][$name] = $value
-            }
-        }
+				$section = $matches["section"]
+				$ini[$section] = [ordered]@{}
+				$CommentCount = 0
+			}
+			"^;(?<comment>.*)$" # Comment
+			{
+				if (!($section))
+				{
+					$section = "No-Section"
+					$ini[$section] = [ordered]@{}
+					$CommentCount = 0
+				}
+				$value = $matches["comment"]
+				$CommentCount = $CommentCount + 1
+				$name = ";Comment" + $CommentCount
+				$ini[$section][$name] = $value
+			}
+			"(?<key>.+)\s*=\s*(?<value>.*)" # Key
+			{
+				if (!($section))
+				{
+					$section = "No-Section"
+					$ini[$section] = [ordered]@{}
+					$CommentCount = 0
+				}
+				$ini[$section][$matches["key"]] = $matches["value"]
+			}
+		}
 		if ($section)
 		{
 			if ($CommentCount -gt 0)
@@ -121,10 +118,10 @@ function Import-Ini {
 			}
 		}
 
-        Write-Verbose "$($MyInvocation.MyCommand.Name)::  imported $($ini.Keys.Count) ini sections"
-        return $ini
-    }
-    end {
+		Write-Verbose "$($MyInvocation.MyCommand.Name)::  imported $($ini.Keys.Count) ini sections"
+		return $ini
+	}
+	end {
 	}
 }
 
@@ -211,77 +208,77 @@ function Import-Ini {
 	#Requires -Version 2.0
 #>
 function Export-Ini {
-    [CmdletBinding()]
+	[CmdletBinding()]
 	[OutputType([System.IO.FileSystemInfo])]
-    param(
-        [switch]$Append,
+	param(
+		[switch]$Append,
 
-        [ValidateSet("Unicode","UTF7","UTF8","UTF32","ASCII","BigEndianUnicode","Default","OEM")]
-        [Parameter()]
-        [string]$Encoding = "UTF8",
+		[ValidateSet("Unicode","UTF7","UTF8","UTF32","ASCII","BigEndianUnicode","Default","OEM")]
+		[Parameter()]
+		[string]$Encoding = "UTF8",
 
 
-        [ValidateNotNullOrEmpty()]
-        [ValidatePattern('^([a-zA-Z]\:)?.+\.ini$')]
-        [Parameter(Mandatory=$True)]
-        [string]$Path,
+		[ValidateNotNullOrEmpty()]
+		[ValidatePattern('^([a-zA-Z]\:)?.+\.ini$')]
+		[Parameter(Mandatory=$True)]
+		[string]$Path,
 
-        [switch]$Force,
+		[switch]$Force,
 
-        [ValidateNotNullOrEmpty()]
-        [Parameter(ValueFromPipeline=$True,Mandatory=$True)]
-        [Hashtable]$InputObject,
+		[ValidateNotNullOrEmpty()]
+		[Parameter(ValueFromPipeline=$True,Mandatory=$True)]
+		[Hashtable]$InputObject,
 
-        [switch]$Passthru
-    )
+		[switch]$Passthru
+	)
 
-    begin  {
+	begin  {
 		Write-Verbose "$($MyInvocation.MyCommand.Name):: Function started"
 	}
 
-    process {
-        Write-Verbose "$($MyInvocation.MyCommand.Name):: Writing to file: $Path"
+	process {
+		Write-Verbose "$($MyInvocation.MyCommand.Name):: Writing to file: $Path"
 
-        if ($append) {
+		if ($append) {
 			$outfile = Get-Item $Path
 		}
-        else {
+		else {
 			$outFile = New-Item -ItemType file -Path $Path -Force:$Force
 		}
-        if (!($outFile)) {
+		if (!($outFile)) {
 			throw "Could not create File"
 		}
-        foreach ($i in $InputObject.keys)
-        {
-            if (!($($InputObject[$i].GetType().Name) -eq "Hashtable"))
-            {
-                #No Sections
-                Write-Verbose "$($MyInvocation.MyCommand.Name):: Writing key: $i"
-                Add-Content -Path $outFile -Value "$i=$($InputObject[$i])" -Encoding $Encoding
-            }
+		foreach ($i in $InputObject.keys)
+		{
+			if (!($($InputObject[$i].GetType().Name) -eq "Hashtable"))
+			{
+				#No Sections
+				Write-Verbose "$($MyInvocation.MyCommand.Name):: Writing key: $i"
+				Add-Content -Path $outFile -Value "$i=$($InputObject[$i])" -Encoding $Encoding
+			}
 			else {
-                #Sections
-                Write-Verbose "$($MyInvocation.MyCommand.Name):: Writing Section: [$i]"
-                Add-Content -Path $outFile -Value "[$i]" -Encoding $Encoding
-                Foreach ($j in $($InputObject[$i].keys | Sort-Object))
-                {
-                    if ($j -match "^;Comment[\d]+") {
-                        Write-Verbose "$($MyInvocation.MyCommand.Name):: Writing comment: $j"
-                        Add-Content -Path $outFile -Value ";$($InputObject[$i][$j])" -Encoding $Encoding
-                    } else {
-                        Write-Verbose "$($MyInvocation.MyCommand.Name):: Writing key: $j"
-                        Add-Content -Path $outFile -Value "$j=$($InputObject[$i][$j])" -Encoding $Encoding
-                    }
+				#Sections
+				Write-Verbose "$($MyInvocation.MyCommand.Name):: Writing Section: [$i]"
+				Add-Content -Path $outFile -Value "[$i]" -Encoding $Encoding
+				Foreach ($j in $($InputObject[$i].keys | Sort-Object))
+				{
+					if ($j -match "^;Comment[\d]+") {
+						Write-Verbose "$($MyInvocation.MyCommand.Name):: Writing comment: $j"
+						Add-Content -Path $outFile -Value ";$($InputObject[$i][$j])" -Encoding $Encoding
+					} else {
+						Write-Verbose "$($MyInvocation.MyCommand.Name):: Writing key: $j"
+						Add-Content -Path $outFile -Value "$j=$($InputObject[$i][$j])" -Encoding $Encoding
+					}
 
-                }
-                Add-Content -Path $outFile -Value "" -Encoding $Encoding
-            }
-        }
-        Write-Verbose "$($MyInvocation.MyCommand.Name):: Finished Writing to file: $path"
-        if ($PassThru) {return $outFile}
-    }
+				}
+				Add-Content -Path $outFile -Value "" -Encoding $Encoding
+			}
+		}
+		Write-Verbose "$($MyInvocation.MyCommand.Name):: Finished Writing to file: $path"
+		if ($PassThru) {return $outFile}
+	}
 
-    end {
+	end {
 		Write-Verbose "$($MyInvocation.MyCommand.Name):: Function ended"
 	}
 }

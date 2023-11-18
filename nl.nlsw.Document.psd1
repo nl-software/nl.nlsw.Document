@@ -11,7 +11,7 @@
 	# RootModule = ".\nl.nlsw.Document.psm1"
 
 	# Version number of this module.
-	ModuleVersion = "1.1.1"
+	ModuleVersion = "1.2.0"
 
 	# Supported PSEditions
 	# CompatiblePSEditions = @('Desktop')
@@ -68,13 +68,14 @@
 	NestedModules = @(
 		"./nl.nlsw.Collections.psm1",
 		"./nl.nlsw.Document.psm1",
+		"./nl.nlsw.DotNet.psm1",
 		"./nl.nlsw.EPUB.psm1",
 		"./nl.nlsw.Excel.psm1",
 		"./nl.nlsw.Feed.psm1",
-		"./nl.nlsw.JSON.psm1",
 		"./nl.nlsw.FileSystem.psm1",
 		"./nl.nlsw.Ini.psm1",
 		"./nl.nlsw.Items.psm1"
+		"./nl.nlsw.JSON.psm1",
 		"./nl.nlsw.SQLite.psm1"
 		"./nl.nlsw.XmlDocument.psm1"
 	)
@@ -89,6 +90,7 @@
 		"Get-ValidFileName","Move-VersionControlledFile","New-IncrementalFileName","New-TempFolder","Remove-TempFolder","Remove-ItemToRecycleBin","Test-VersionControlledFile"
 		"Export-Ini","Import-Ini",
 		"ConvertTo-EPUB",
+		"Get-DotNetPackage","Import-DotNetLibrary",
 		"Get-ExcelData", "Get-ExcelDataTable", "Import-ExcelDataSet",
 		"ConvertTo-FormattedJson",
 		"Get-SQLiteDataSet","Invoke-SQLiteCommand",
@@ -115,20 +117,22 @@
 		"./en/about_nl.nlsw.Document.help.txt",
 		"./lib/netstandard2.0/nl.nlsw.Document.dll",
 		"./media/nl.nlsw.Document.png",
-		"./source/nl.nlsw.Document.cs",
+		"./source/nl.nlsw.Documents.cs",
 		"./source/nl.nlsw.Identifiers.cs",
 		"./source/nl.nlsw.Items.cs",
 		"./tests/Test-nl.nlsw.Document.ps1",
 		"./CHANGELOG.md",
 		"./nl.nlsw.Collections.psm1",
 		"./nl.nlsw.Document.psm1",
+		"./nl.nlsw.DotNet.psm1",
 		"./nl.nlsw.EPUB.psm1",
 		"./nl.nlsw.Excel.psm1",
-		"./nl.nlsw.JSON.psm1",
 		"./nl.nlsw.Feed.psm1",
 		"./nl.nlsw.FileSystem.psm1",
 		"./nl.nlsw.Ini.psm1",
 		"./nl.nlsw.Items.psm1",
+		"./nl.nlsw.JSON.psm1",
+		"./nl.nlsw.SQLite.psm1"
 		"./nl.nlsw.XmlDocument.psm1",
 		"./readme.md"
 	)
@@ -140,7 +144,7 @@
 
 			# Tags applied to this module. These help with module discovery in online galleries.
 			Tags = @('PSEdition_Desktop',
-				'Document','ItemObject','ItemList','ItemStack','Property','Attributes','CompoundProperty','Reader','Writer','URI', 'EPUB', 'Excel', 'XML', 'HTML'
+				'Document','ItemObject','ItemList','ItemStack','Property','Attributes','CompoundProperty','Reader','Writer','URI', 'EPUB', 'Excel', 'XML', 'HTML', 'SQLite'
 			)
 
 			# NuGet-4.9.0++ prefers 'license' over 'licenseUrl'; not supported in PowerShell psd yet. SPDX identifier or path to license file in the package.
