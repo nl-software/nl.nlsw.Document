@@ -26,26 +26,26 @@ class Excel {
 	}
 
 	# Make sure the .NET Standard 2.0 library of the specified package is loaded
-	# @param $packageName the name of the package
+	# @param $packageName the name of the package (and the assembly!)
 	# @param $packageVersion the required version of the package
 	# @see https://stackoverflow.com/questions/39257572/loading-assemblies-from-nuget-packages
 	static [void] Install([string]$packageName,[string]$packageVersion) {
-		Import-DotNetLibrary $packageName -RequiredVersion $packageVersion -SkipDependencies
+		Import-DotNetLibrary -Name $packageName -MinimumVersion $packageVersion -SkipDependencies
 	}
 }
 
 <#
 .SYNOPSIS
  Get a Microsoft Excel document sheet's content.
-  
+
 .DESCRIPTION
  Get data from an Excel worksheet, using a COM interface to Microsoft Excel.
- 
+
  The first row in the sheet is the header of the table (@todo make option)
- 
+
  The rows of the sheet are returned as PSObject objects, similar to the
  output of the ConvertFrom-CSV command.
- 
+
 .PARAMETER Path
  The file name of the Excel file to process.
 
@@ -57,7 +57,7 @@ class Excel {
 
 .LINK
  https://devblogs.microsoft.com/scripting/beat-the-auditors-be-one-step-ahead-with-powershell/
- 
+
 .NOTES
  @author Ernst van der Pols, edited from internet-source
 #>
@@ -96,9 +96,9 @@ function Get-ExcelData {
 		else {
 			$wb = $excel.Workbooks.open($file)
 		}
-		
+
 		# @see https://docs.microsoft.com/en-us/office/vba/api/excel.xlcelltype
-		$xlCellTypeLastCell = 11 
+		$xlCellTypeLastCell = 11
 
 		write-verbose ("{0,16} {1}" -f "protected",$file)
 		write-verbose ("{0,16} {1}" -f "sheets",$wb.sheets.count)
@@ -157,24 +157,24 @@ function Get-ExcelData {
 <#
 .SYNOPSIS
  Get a Microsoft Excel document sheet's content as System.Data.DataTable.
-  
+
 .DESCRIPTION
  Import data from an Excel worksheet, using an OLE database connection to Microsoft Excel.
- 
+
  Note that you need to have Microsoft Excel installed.
- 
+
 .PARAMETER Path
  The file name of the Excel file to import data from.
 
 .PARAMETER WorksheetName
  The name of the worksheet to get.
- 
+
 .PARAMETER Query
  Geeks can enter an SQL query in stead of a sheet name.
- 
+
 .OUTPUTS
  System.Data.DataTable
- 
+
 .NOTES
  @author Ernst van der Pols, edited from internet-source
 #>
@@ -214,7 +214,7 @@ function Get-ExcelDataTable {
 		$JobCode = {
 			param($Path, $Query)
 
-			# Check if the file is XLS or XLSX 
+			# Check if the file is XLS or XLSX
 			if ((Get-Item -Path $Path).Extension -eq 'xls') {
 				$Provider = 'Microsoft.Jet.OLEDB.4.0'
 				$ExtendedProperties = 'Excel 8.0;HDR=YES;IMEX=1'
@@ -222,7 +222,7 @@ function Get-ExcelDataTable {
 				$Provider = 'Microsoft.ACE.OLEDB.12.0'
 				$ExtendedProperties = 'Excel 12.0;HDR=YES'
 			}
-			
+
 			# Build the connection string and connection object
 			$ConnectionString = 'Provider={0};Data Source={1};Extended Properties="{2}"' -f $Provider, $Path, $ExtendedProperties
 			$Connection = New-Object System.Data.OleDb.OleDbConnection $ConnectionString
@@ -261,14 +261,14 @@ function Get-ExcelDataTable {
 <#
 .SYNOPSIS
  Get a Microsoft Excel document's content as System.Data.DataSet.
-  
+
 .DESCRIPTION
  Import data from an Excel document, using the ExcelDataReader .NET library.
- 
+
  Note that you do not need to have Microsoft Excel installed.
- 
+
  Note currently ExcelDataReader version 3 is used.
- 
+
 .PARAMETER Path
  The file name of the Excel file(s) to import. May contain wildcards,
  and may be input via the pipeline.
@@ -279,7 +279,7 @@ function Get-ExcelDataTable {
 
 .INPUTS
  System.String
- 
+
 .OUTPUTS
  System.Data.DataSet
 
@@ -295,7 +295,7 @@ function Import-ExcelDataSet {
 		[Parameter(Mandatory=$true, Position=0, ValueFromPipeline = $true)]
 		[SupportsWildcards()]
 		[string]$Path,
-	
+
 		[Parameter(Mandatory=$false)]
 		[bool]$IsFirstRowAsColumnNames = $true
 	)
@@ -320,7 +320,7 @@ function Import-ExcelDataSet {
 					write-error ("unsupported file extension of file '{0}'" -f $file.FullName)
 					return
 				}
-				
+
 				# all tables have a row header (or not), and if so, only include columns with a column name (trimming of excess Excel)
 				$dataTableConfiguration = [ExcelDataReader.ExcelDataTableConfiguration]::new();
 				$dataTableConfiguration.UseHeaderRow = $IsFirstRowAsColumnNames

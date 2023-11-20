@@ -72,11 +72,11 @@ git clone https://github.com/nl-software/nl.nlsw.Document.git
 The following submodules require additional .NET packages. The packages will be
 automatically installed in the user environment when needed.
 - nl.nlsw.Excel
-  - `ExcelDataReader.dll` from *[ExcelDataReader 3.6]*.
-  - `ExcelDataReader.DataSet.dll` from *[ExcelDataReader.DataSet 3.6]*.
+  - [ExcelDataReader 3.6] for `ExcelDataReader.dll`.
+  - [ExcelDataReader.DataSet 3.6] for `ExcelDataReader.DataSet.dll`.
 
 - nl.nlsw.SQLite
-  - `System.Data.SQLite.dll` from *[Stub.System.Data.SQLite.Core.NetStandard 1.0]*.
+  - [Stub.System.Data.SQLite.Core.NetStandard 1.0] for `System.Data.SQLite.dll`.
     Note that this is a .NET Standard 2.0 package.
 
 For running the unit test of the module, you require:

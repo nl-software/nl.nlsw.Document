@@ -120,6 +120,7 @@
 		"./source/nl.nlsw.Documents.cs",
 		"./source/nl.nlsw.Identifiers.cs",
 		"./source/nl.nlsw.Items.cs",
+		"./tests/Debug-PSModule.ps1",
 		"./tests/Test-nl.nlsw.Document.ps1",
 		"./CHANGELOG.md",
 		"./nl.nlsw.Collections.psm1",

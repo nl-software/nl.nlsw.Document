@@ -7,13 +7,14 @@
 
 class SQLite {
 	# https://www.nuget.org/packages/Stub.System.Data.SQLite.Core.NetStandard
+	static [string] $AssemblyName = "System.Data.SQLite"
 	static [string] $PackageName = "Stub.System.Data.SQLite.Core.NetStandard"
 	static [string] $PackageVersion = "1.0"
 
 	# static constructor
 	static SQLite() {
 		# run this only once
-		[SQLite]::Install([SQLite]::PackageName,[SQLite]::PackageVersion)
+		[SQLite]::Install([SQLite]::AssemblyName,[SQLite]::PackageName,[SQLite]::PackageVersion)
 	}
 
 	# Function with dummy behavior that can be called to trigger
@@ -24,44 +25,39 @@ class SQLite {
 	# Make sure the System.Data.SQLite .NET Standard 2.0 library is loaded
 	# @see https://stackoverflow.com/questions/39257572/loading-assemblies-from-nuget-packages
 	# @see https://stackoverflow.com/questions/69118045/sqlkata-with-sqlite-minimal-example-powershell/69126680
-	static [void] Install([string]$packageName,[string]$packageVersion) {
-		$assemblyName = "System.Data.SQLite"
+	static [void] Install([string]$assemblyName, [string]$packageName,[string]$packageVersion) {
 		# check the presence of the assembly in the session (
 		$assemblies = [AppDomain]::CurrentDomain.GetAssemblies()
 		if (!($assemblyName -in $assemblies.GetName().Name)) {
-			# check the presence of the SQLite package
-			$sqlite = Get-Package $packageName -RequiredVersion $packageVersion -ErrorAction SilentlyContinue
-			if (!$sqlite) {
-				# install the package
-				$sqlite = Get-DotNetPackage $packageName -RequiredVersion $packageVersion
-				# make the platform-specific InterOp dll available for Win32 and Win64
-				if ([System.Environment]::OSVersion.Platform -eq $([System.PlatformID]::Win32NT)) {
-					$sqliteNupkg = get-item $sqlite.Source
-					foreach ($platform in "64","86") {
-						# make sure the InterOp.dll is in the location that the managed dll will look for
-						$destFile = [System.IO.FileInfo]::new((Join-Path $($sqliteNupkg.DirectoryName) "lib/netstandard2.0/x$($platform)/SQLite.Interop.dll"))
-						if (!$destFile.Exists) {
-							if (!$destFile.Directory.Exists) {
-								# make sure the target folder exists
-								$destFile.Directory.Create()
-								$destFile.Directory.Refresh()
-							}
-							# copy the InterOp.dll to the location that the managed dll will look for
-							$interop = get-item (Join-Path $($sqliteNupkg.DirectoryName) "runtimes/win-x$($platform)/native/SQLite.Interop.dll")
-							Copy-Item $interop.FullName $destFile.FullName
-							$destFile.Refresh()
-							write-verbose ("{0,16} {1}" -f "copied",$destFile)
+			# check the presence of the SQLite package and install if necessary
+			$sqlite = Get-DotNetPackage -Name $packageName -MinimumVersion $packageVersion
+			# check / make the platform-specific InterOp dll available for Win32 and Win64
+			if ($sqlite -and ([System.Environment]::OSVersion.Platform -eq $([System.PlatformID]::Win32NT))) {
+				$sqlitePackageFile = get-item $sqlite.Source
+				$sqlitePackageFolder = $sqlitePackageFile.DirectoryName
+				foreach ($platform in "64","86") {
+					# make sure the InterOp.dll is in the location that the managed dll will look for
+					$destFile = [System.IO.FileInfo]::new("$sqlitePackageFolder/lib/netstandard2.0/x$($platform)/SQLite.Interop.dll")
+					if (!$destFile.Exists) {
+						if (!$destFile.Directory.Exists) {
+							# make sure the target folder exists
+							$destFile.Directory.Create()
+							$destFile.Directory.Refresh()
 						}
+						# copy the InterOp.dll to the location that the managed dll will look for
+						$interop = get-item ("$sqlitePackageFolder/runtimes/win-x$($platform)/native/SQLite.Interop.dll")
+						Copy-Item $interop.FullName $destFile.FullName
+						$destFile.Refresh()
+						write-verbose ("{0,16} {1}" -f "copied",$destFile)
 					}
 				}
-				else {
-					throw [InvalidOperationException]::new(("please install the $packageName package manually on operating system {0}" -f $env:OS))
-				}
+				# Get the NetStandard2.0 dll
+				$sqlitedll = get-item ("$sqlitePackageFolder/lib/netstandard2.0/$assemblyName.dll")
+				Add-Type -Path $sqlitedll
 			}
-			# Get the NetStandard2.0 dll
-			$sqlitePackageFile = get-item $sqlite.Source
-			$sqlitedll = get-item (Join-Path $sqlitePackageFile.DirectoryName "lib/netstandard2.0/System.Data.SQLite.dll")
-			Add-Type -Path $sqlitedll
+			else {
+				throw [InvalidOperationException]::new(("please install the $packageName package manually on operating system {0}" -f $env:OS))
+			}
 		}
 	}
 }

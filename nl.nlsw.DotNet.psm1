@@ -71,7 +71,7 @@ class DotNet {
  FileList into a temporary folder. Publish-Module is called on this temporary
  folder, so the set of files in the package is fully controlled.
 
- If the PowerShell module contains a C# project for building a .NET library, 
+ If the PowerShell module contains a C# project for building a .NET library,
  the C# project is built. The resulting library assemblies are copied into the
  'lib' folder, as required for NuGet. For this process the dotnet SDK is
  expected to be available.
@@ -115,7 +115,7 @@ class DotNet {
 .INPUTS
  String
  System.IO.FileSystemInfo
- 
+
 .OUTPUTS
  System.IO.FileInfo
 
@@ -133,7 +133,9 @@ class DotNet {
 #>
 function Build-DotNetPowerShellPackage {
 	[CmdletBinding(SupportsShouldProcess=$true, ConfirmImpact='Medium')]
-	param ( 
+	[OutputType([System.IO.FileInfo])]
+	[System.Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseApprovedVerbs', '', Justification="Is approved in PS6", Scope='Function')]
+	param (
 		[Parameter(Mandatory=$false, Position=0, ValueFromPipeline = $true,
 			HelpMessage="Enter the name of the module folder or manifest file to process")]
 		[SupportsWildcards()]
@@ -306,7 +308,7 @@ function Build-DotNetPowerShellPackage {
 								# write-verbose ($nuspec.OuterXml.ToString())
 								# update the nuspec
 								foreach ($element in $MetadataElement) {
-									if ($psd.PrivateData.PSData.$element -and ($nuspec.package.metadata.SelectSingleNode("p:$element",$nsm) -eq $null)) {
+									if ($psd.PrivateData.PSData.$element -and ($null -eq $nuspec.package.metadata.SelectSingleNode("p:$element",$nsm))) {
 										$node = $nuspec.CreateElement($element,$nuspecNs)
 										$value = $psd.PrivateData.PSData.$element
 										if ($value -is [hashtable]) {
@@ -423,6 +425,7 @@ function Get-DotNetPackage {
 	[CmdletBinding()]
 	param(
 		[Parameter(Mandatory=$true, ValueFromPipeline = $true)]
+		[Alias("PackageName")]
 		[string]$Name,
 
 		[Parameter(Mandatory=$false)][Alias("Version")]
@@ -448,7 +451,9 @@ function Get-DotNetPackage {
 			# check the presence of the package
 			$package = Get-Package @attrs -ErrorAction SilentlyContinue
 			if (!$package) {
-				write-host ("{0,16} {1}" -f "installing",$packageName)
+				# make the user aware of the installation action
+				$PSBoundParameters["Verbose"] = $true
+				write-verbose ("{0,16} {1}" -f "installing",$packageName)
 				# First check if the NuGet package provider is available and the "nuget.org" source is registered.
 				[DotNet]::Check()
 				# install the package (specify the source to avoid exception in case of multiple sources)
@@ -474,14 +479,19 @@ function Get-DotNetPackage {
  installation of the package and importing the class library assembly into
  the PowerShell session (with Add-Type).
 
- This operation performs this operation. It assumes that the name of the
- library equals the name of the assembly and of the package.
+ This operation performs this operation. By default, it assumes that the
+ name of the library (assembly) equals the name of the package.
+ Specify the PackageName if that differs from the library assembly name.
 
 .PARAMETER Name
  Specifies the class library name. This must be the name of the
  .NET library assembly (.DLL) file and the NuGet package as well.
 
  May be input via the pipeline.
+
+.PARAMETER PackageName
+ Specifies the name of the NuGet package that contains the class library.
+ By default, the package name equals the Name parameter.
 
 .PARAMETER RequiredVersion
  Specifies the exact version of the package to find.
@@ -514,9 +524,13 @@ function Get-DotNetPackage {
 #>
 function Import-DotNetLibrary {
 	[CmdletBinding()]
+	[OutputType([System.IO.FileInfo])]
 	param(
 		[Parameter(Mandatory=$true, ValueFromPipeline = $true)]
 		[string]$Name,
+
+		[Parameter(Mandatory=$false)]
+		[string]$PackageName,
 
 		[Parameter(Mandatory=$false)][Alias("Version")]
 		[string]$RequiredVersion,
@@ -537,21 +551,25 @@ function Import-DotNetLibrary {
 	}
 	process {
 		$Name | where-object { ![string]::IsNullOrEmpty($_) } | foreach-object {
-			$packageName = $_
+			$assemblyName = $_
 			# check the presence of the assembly in the session (
 			$assemblies = [AppDomain]::CurrentDomain.GetAssemblies()
-			if (!($packageName -in $assemblies.GetName().Name)) {
+			if (!($assemblyName -in $assemblies.GetName().Name)) {
 				# create the arguments for the Get-DotNetPackage function
 				$attrs = [System.Collections.Generic.Dictionary[[string],[object]]]::new($PSBoundParameters)
+				if ($PSBoundParameters["PackageName"]) {
+					$attrs.Remove("Name") | Out-Null
+				}
 				$attrs.Remove("TargetFramework") | Out-Null
 				# Second, check the presence of the package, and install if needed
 				$package = Get-DotNetPackage @attrs
 				# Get the dll for the target framework
 				$packageFile = get-item $package.Source
-				$packageDll = get-item (Join-Path $packageFile.DirectoryName "lib/$TargetFramework/$packageName.dll")
-				write-host ("{0,16} {1}" -f "loading",$packageDll)
-				Add-Type -Path $packageDll
-				write-output $packageDll
+				$packageFolder = $packageFile.DirectoryName
+				$assemblyFile = get-item ("$packageFolder/lib/$TargetFramework/$assemblyName.dll")
+				write-verbose ("{0,16} {1}" -f "loading",$assemblyFile)
+				Add-Type -Path $assemblyFile
+				write-output $assemblyFile
 			}
 		}
 	}
