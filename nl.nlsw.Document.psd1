@@ -90,7 +90,7 @@
 		"Get-ValidFileName","Move-VersionControlledFile","New-IncrementalFileName","New-TempFolder","Remove-TempFolder","Remove-ItemToRecycleBin","Test-VersionControlledFile"
 		"Export-Ini","Import-Ini",
 		"ConvertTo-EPUB",
-		"Get-DotNetPackage","Import-DotNetLibrary",
+		"Build-DotNetPowerShellPackage","Get-DotNetPackage","Import-DotNetLibrary",
 		"Get-ExcelData", "Get-ExcelDataTable", "Import-ExcelDataSet",
 		"ConvertTo-FormattedJson",
 		"Get-SQLiteDataSet","Invoke-SQLiteCommand",

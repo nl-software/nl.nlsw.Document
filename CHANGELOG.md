@@ -1,16 +1,19 @@
 ﻿# nl.nlsw.Document changelog
 
-## Release nl.nlsw.Document-1.2.0
+## Release 2023-11-20 nl.nlsw.Document-1.2.0
 
 ### Added
-- nl.nlsw.DotNet.ps1 with support for using .NET assemblies
-- nl.nlsw.Excel.ps1 for access to Excel documents
+- nl.nlsw.DotNet.ps1 with support for using .NET assemblies and building PowerShell/.NET packages.
+- nl.nlsw.Excel.ps1 for access to Excel documents.
 - nl.nlsw.Document.png icon
 
 ### Fixed
+- New-IncrementalFileName did not replace the number in parentheses, but added another set.
 - Get-ValidFileName() and New-IncrementalFileName replace SPACE although a valid filename char
   - PS [string](char[]) performs a -join i.s.o. a construction: fix [string]::new(char[])
 - Import-Ini: key-value regex superfluous '?'
+- Improved automatic installation and import of .NET dependencies. Using specific repository
+  name to avoid error when multiple sources are available.
 
 ## Release 2022-10-24 nl.nlsw.Document-1.1.0
 

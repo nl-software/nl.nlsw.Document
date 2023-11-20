@@ -6,6 +6,7 @@
 #requires -version 5
 
 class SQLite {
+	# https://www.nuget.org/packages/Stub.System.Data.SQLite.Core.NetStandard
 	static [string] $PackageName = "Stub.System.Data.SQLite.Core.NetStandard"
 	static [string] $PackageVersion = "1.0"
 
